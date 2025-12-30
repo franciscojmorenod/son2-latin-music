@@ -30,26 +30,22 @@ export default function Home() {
   return (
     <div className="relative">
    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-        {/* Video Background */}
+  {/* YouTube Video Background */}
         <div className="absolute inset-0 w-full h-full overflow-hidden">
-         <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute min-w-full min-h-full object-cover"
-            onLoadedMetadata={(e) => {
-              e.currentTarget.currentTime = 95; // Start at 1:00
+          <iframe
+            id="bgVideo"
+            className="absolute top-1/2 left-1/2 w-screen h-screen transform -translate-x-1/2 -translate-y-1/2"
+            style={{
+              minWidth: '100vw',
+              minHeight: '100vh',
+              width: '177.77777778vh',
+              height: '56.25vw',
+              pointerEvents: 'none'
             }}
-            onTimeUpdate={(e) => {
-              if (e.currentTarget.currentTime >= 155) { // Stop at 2:00
-                e.currentTarget.currentTime = 95; // Loop back to 1:00
-              }
-            }}
-          >
-            <source src="/videos/SOBERBIAMENTE-4K.mp4" type="video/mp4" />
-          </video>
-          {/* Dark Overlay for text readability */}
+            src="https://www.youtube.com/embed/VKKt1rvmayE?autoplay=1&mute=1&loop=1&playlist=VKKt1rvmayE&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&start=60"
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          />
           <div className="absolute inset-0 bg-black/60"></div>
         </div>
 
