@@ -24,36 +24,61 @@ export default function QuotePage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Here you would typically send the form data to your backend
-    // For now, we'll just show a success message
-    console.log('Form submitted:', formData)
-    
-    // You can integrate with services like:
-    // - EmailJS
-    // - Formspree
-    // - Your own FastAPI backend
-    // - Netlify Forms
-    
-    setSubmitted(true)
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setSubmitted(false)
-      setFormData({
-        firstname: '',
-        lastname: '',
-        email: '',
-        phone: '',
-        address: '',
-        city: '',
-        zip: '',
-        date: '',
-        duration: '',
-        starttime: '',
-        inoutdoor: '',
-        message: '',
+    try {
+      // Send form data to API
+      const response = await fetch('/api/quotes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          firstName: formData.firstname,
+          lastName: formData.lastname,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          zip: formData.zip,
+          eventDate: formData.date,
+          startTime: formData.starttime,
+          duration: formData.duration,
+          indoorOutdoor: formData.inoutdoor,
+          message: formData.message,
+        }),
       })
-    }, 3000)
+    
+      const result = await response.json()
+    
+      if (result.success) {
+        console.log('Quote saved! ID:', result.quoteId)
+        setSubmitted(true)
+        
+        // Reset form after 3 seconds
+        setTimeout(() => {
+          setSubmitted(false)
+          setFormData({
+            firstname: '',
+            lastname: '',
+            email: '',
+            phone: '',
+            address: '',
+            city: '',
+            zip: '',
+            date: '',
+            duration: '',
+            starttime: '',
+            inoutdoor: '',
+            message: '',
+          })
+        }, 3000)
+      } else {
+        alert('Error submitting quote. Please try again.')
+        console.error('API error:', result.error)
+      }
+    } catch (error) {
+      alert('Error submitting quote. Please try again.')
+      console.error('Submit error:', error)
+    }
   }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
