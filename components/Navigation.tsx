@@ -23,14 +23,15 @@ export default function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-3 group">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-salsa-500 to-merengue-500 rounded-full blur-lg opacity-50 group-hover:opacity-75 transition-opacity"></div>
-              <div className="relative bg-gradient-to-r from-salsa-600 to-merengue-600 rounded-full p-2">
-                <span className="text-2xl font-bold text-white">S2</span>
+            <Link href="/" className="flex items-center space-x-3 group">
+              <div className="relative">
+                <img 
+                  src="/images/F_Ccartoon.jpg" 
+                  alt="Son2 Latin Music Logo" 
+                  className="h-20 w-20 object-contain"
+                />
               </div>
-            </div>
-            <div>
+              <div>
               <p className="font-display text-2xl font-bold bg-gradient-to-r from-salsa-400 to-cumbia-400 bg-clip-text text-transparent">
                 Son2 Latin Music
               </p>
