@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
+import { Providers } from './providers'
 
 export const metadata: Metadata = {
   title: 'Son2 Latin Music | Award-Winning Latin Band in Tampa Bay',
@@ -22,11 +23,13 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white antialiased">
-        <Navigation />
-        <main className="min-h-screen">
-          {children}
-        </main>
-        <Footer />
+        <Providers>
+          <Navigation />
+          <main className="min-h-screen">
+            {children}
+          </main>
+          <Footer />
+        </Providers>
       </body>
     </html>
   )
