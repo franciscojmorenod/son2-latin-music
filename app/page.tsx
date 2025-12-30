@@ -42,7 +42,7 @@ export default function Home() {
               height: '56.25vw',
               pointerEvents: 'none'
             }}
-            src="https://www.youtube.com/embed/VKKt1rvmayE?autoplay=1&mute=1&loop=1&playlist=VKKt1rvmayE&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&start=60"
+            src="https://www.youtube.com/embed/VKKt1rvmayE?autoplay=1&mute=1&loop=1&playlist=VKKt1rvmayE&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&start=95"
             frameBorder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
           />
