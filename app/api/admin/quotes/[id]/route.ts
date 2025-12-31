@@ -56,6 +56,18 @@ export async function PATCH(
     await sql`
       UPDATE quote_requests
       SET 
+        first_name = ${data.first_name},
+        last_name = ${data.last_name},
+        email = ${data.email},
+        phone = ${data.phone},
+        address = ${data.address},
+        city = ${data.city},
+        zip = ${data.zip},
+        event_date = ${data.event_date},
+        start_time = ${data.start_time},
+        duration = ${data.duration},
+        indoor_outdoor = ${data.indoor_outdoor},
+        special_request_1 = ${data.special_request_1},
         total_price = ${data.total_price},
         deposit_amount = ${data.deposit_amount},
         balance_due = ${balance_due},

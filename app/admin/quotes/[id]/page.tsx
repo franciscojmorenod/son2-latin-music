@@ -49,6 +49,18 @@ export default function QuoteDetailPage() {
   const [saving, setSaving] = useState(false)
 
   const [formData, setFormData] = useState({
+    first_name: '',
+    last_name: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: '',
+    zip: '',
+    event_date: '',
+    start_time: '',
+    duration: '',
+    indoor_outdoor: '',
+    special_request_1: '',
     total_price: '',
     deposit_amount: '',
     num_musicians: '3',
@@ -72,6 +84,18 @@ export default function QuoteDetailPage() {
         const data = await response.json()
         setQuote(data)
         setFormData({
+          first_name: data.first_name || '',
+          last_name: data.last_name || '',
+          email: data.email || '',
+          phone: data.phone || '',
+          address: data.address || '',
+          city: data.city || '',
+          zip: data.zip || '',
+          event_date: data.event_date || '',
+          start_time: data.start_time || '',
+          duration: data.duration || '',
+          indoor_outdoor: data.indoor_outdoor || '',
+          special_request_1: data.special_request_1 || '',
           total_price: data.total_price?.toString() || '',
           deposit_amount: data.deposit_amount?.toString() || '',
           num_musicians: data.num_musicians.toString(),
@@ -96,6 +120,18 @@ export default function QuoteDetailPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          first_name: formData.first_name,
+          last_name: formData.last_name,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          city: formData.city,
+          zip: formData.zip,
+          event_date: formData.event_date,
+          start_time: formData.start_time,
+          duration: formData.duration,
+          indoor_outdoor: formData.indoor_outdoor || null,
+          special_request_1: formData.special_request_1 || null,
           total_price: formData.total_price ? parseFloat(formData.total_price) : null,
           deposit_amount: formData.deposit_amount ? parseFloat(formData.deposit_amount) : null,
           num_musicians: parseInt(formData.num_musicians),
@@ -124,6 +160,18 @@ export default function QuoteDetailPage() {
     setEditing(false)
     if (quote) {
       setFormData({
+        first_name: quote.first_name || '',
+        last_name: quote.last_name || '',
+        email: quote.email || '',
+        phone: quote.phone || '',
+        address: quote.address || '',
+        city: quote.city || '',
+        zip: quote.zip || '',
+        event_date: quote.event_date || '',
+        start_time: quote.start_time || '',
+        duration: quote.duration || '',
+        indoor_outdoor: quote.indoor_outdoor || '',
+        special_request_1: quote.special_request_1 || '',
         total_price: quote.total_price?.toString() || '',
         deposit_amount: quote.deposit_amount?.toString() || '',
         num_musicians: quote.num_musicians.toString(),
@@ -243,7 +291,7 @@ export default function QuoteDetailPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Customer Information */}
+          {/* Customer Information - EDITABLE */}
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
               <User className="text-salsa-400" />
@@ -252,82 +300,210 @@ export default function QuoteDetailPage() {
             
             <div className="space-y-3">
               <div>
-                <label className="text-gray-400 text-sm">Name</label>
-                <p className="text-lg">{quote.first_name} {quote.last_name}</p>
+                <label className="text-gray-400 text-sm block mb-1">First Name</label>
+                {editing ? (
+                  <input
+                    type="text"
+                    value={formData.first_name}
+                    onChange={(e) => setFormData({...formData, first_name: e.target.value})}
+                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
+                  />
+                ) : (
+                  <p className="text-lg">{quote.first_name}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="text-gray-400 text-sm block mb-1">Last Name</label>
+                {editing ? (
+                  <input
+                    type="text"
+                    value={formData.last_name}
+                    onChange={(e) => setFormData({...formData, last_name: e.target.value})}
+                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
+                  />
+                ) : (
+                  <p className="text-lg">{quote.last_name}</p>
+                )}
               </div>
               
               <div>
-                <label className="text-gray-400 text-sm flex items-center gap-1">
+                <label className="text-gray-400 text-sm flex items-center gap-1 mb-1">
                   <Mail size={14} /> Email
                 </label>
-                <a href={`mailto:${quote.email}`} className="text-salsa-400 hover:text-salsa-300">
-                  {quote.email}
-                </a>
+                {editing ? (
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({...formData, email: e.target.value})}
+                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
+                  />
+                ) : (
+                  <a href={`mailto:${quote.email}`} className="text-salsa-400 hover:text-salsa-300">
+                    {quote.email}
+                  </a>
+                )}
               </div>
               
               <div>
-                <label className="text-gray-400 text-sm flex items-center gap-1">
+                <label className="text-gray-400 text-sm flex items-center gap-1 mb-1">
                   <Phone size={14} /> Phone
                 </label>
-                <a href={`tel:${quote.phone}`} className="text-salsa-400 hover:text-salsa-300">
-                  {quote.phone}
-                </a>
+                {editing ? (
+                  <input
+                    type="tel"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
+                  />
+                ) : (
+                  <a href={`tel:${quote.phone}`} className="text-salsa-400 hover:text-salsa-300">
+                    {quote.phone}
+                  </a>
+                )}
               </div>
             </div>
           </div>
 
-          {/* Event Location */}
+          {/* Event Location - EDITABLE */}
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
               <MapPin className="text-salsa-400" />
               Event Location
             </h2>
             
-            <div className="space-y-2">
-              <p className="text-lg">{quote.address}</p>
-              <p className="text-gray-400">{quote.city}, FL {quote.zip}</p>
+            <div className="space-y-3">
+              <div>
+                <label className="text-gray-400 text-sm block mb-1">Address</label>
+                {editing ? (
+                  <input
+                    type="text"
+                    value={formData.address}
+                    onChange={(e) => setFormData({...formData, address: e.target.value})}
+                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
+                  />
+                ) : (
+                  <p className="text-lg">{quote.address}</p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-gray-400 text-sm block mb-1">City</label>
+                  {editing ? (
+                    <input
+                      type="text"
+                      value={formData.city}
+                      onChange={(e) => setFormData({...formData, city: e.target.value})}
+                      className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
+                    />
+                  ) : (
+                    <p className="text-lg">{quote.city}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="text-gray-400 text-sm block mb-1">ZIP</label>
+                  {editing ? (
+                    <input
+                      type="text"
+                      value={formData.zip}
+                      onChange={(e) => setFormData({...formData, zip: e.target.value})}
+                      className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
+                    />
+                  ) : (
+                    <p className="text-lg">{quote.zip}</p>
+                  )}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Event Details */}
+          {/* Event Details - EDITABLE */}
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
               <Calendar className="text-salsa-400" />
               Event Details
             </h2>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-3">
               <div>
-                <label className="text-gray-400 text-sm">Event Date</label>
-                <p className="text-lg">{formatDate(quote.event_date)}</p>
+                <label className="text-gray-400 text-sm block mb-1">Event Date</label>
+                {editing ? (
+                  <input
+                    type="date"
+                    value={formData.event_date}
+                    onChange={(e) => setFormData({...formData, event_date: e.target.value})}
+                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
+                  />
+                ) : (
+                  <p className="text-lg">{formatDate(quote.event_date)}</p>
+                )}
               </div>
               
               <div>
-                <label className="text-gray-400 text-sm flex items-center gap-1">
+                <label className="text-gray-400 text-sm flex items-center gap-1 mb-1">
                   <Clock size={14} /> Start Time
                 </label>
-                <p className="text-lg">{formatTime(quote.start_time)}</p>
+                {editing ? (
+                  <input
+                    type="time"
+                    value={formData.start_time}
+                    onChange={(e) => setFormData({...formData, start_time: e.target.value})}
+                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
+                  />
+                ) : (
+                  <p className="text-lg">{formatTime(quote.start_time)}</p>
+                )}
               </div>
               
               <div>
-                <label className="text-gray-400 text-sm">Duration</label>
-                <p className="text-lg">{quote.duration}</p>
+                <label className="text-gray-400 text-sm block mb-1">Duration</label>
+                {editing ? (
+                  <input
+                    type="text"
+                    value={formData.duration}
+                    onChange={(e) => setFormData({...formData, duration: e.target.value})}
+                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
+                    placeholder="3 hours"
+                  />
+                ) : (
+                  <p className="text-lg">{quote.duration}</p>
+                )}
               </div>
               
-              {quote.indoor_outdoor && (
-                <div>
-                  <label className="text-gray-400 text-sm">Setting</label>
-                  <p className="text-lg capitalize">{quote.indoor_outdoor}</p>
-                </div>
-              )}
-            </div>
-
-            {quote.special_request_1 && (
-              <div className="mt-4 pt-4 border-t border-gray-700">
-                <label className="text-gray-400 text-sm">Special Requests</label>
-                <p className="text-gray-300 mt-1">{quote.special_request_1}</p>
+              <div>
+                <label className="text-gray-400 text-sm block mb-1">Setting</label>
+                {editing ? (
+                  <select
+                    value={formData.indoor_outdoor}
+                    onChange={(e) => setFormData({...formData, indoor_outdoor: e.target.value})}
+                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
+                  >
+                    <option value="">Select...</option>
+                    <option value="indoor">Indoor</option>
+                    <option value="outdoor">Outdoor</option>
+                    <option value="both">Both</option>
+                  </select>
+                ) : (
+                  <p className="text-lg capitalize">{quote.indoor_outdoor || 'Not specified'}</p>
+                )}
               </div>
-            )}
+
+              <div>
+                <label className="text-gray-400 text-sm block mb-1">Special Requests</label>
+                {editing ? (
+                  <textarea
+                    value={formData.special_request_1}
+                    onChange={(e) => setFormData({...formData, special_request_1: e.target.value})}
+                    rows={3}
+                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none resize-none"
+                  />
+                ) : (
+                  <p className="text-gray-300">{quote.special_request_1 || 'None'}</p>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Pricing & Status - EDITABLE */}
@@ -384,7 +560,7 @@ export default function QuoteDetailPage() {
               
               {/* Deposit */}
               <div>
-                <label className="text-gray-400 text-sm block mb-2">Deposit Amount (50%)</label>
+                <label className="text-gray-400 text-sm block mb-2">Deposit Amount</label>
                 {editing ? (
                   <div className="relative">
                     <span className="absolute left-3 top-3 text-gray-400">$</span>
