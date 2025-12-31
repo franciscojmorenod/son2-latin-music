@@ -67,7 +67,7 @@ export async function POST(
     
     const contractToken = uuidv4();
     
-    const blob = await put(`contracts/contract-${quote.id}-${contractToken}.pdf`, pdfBytes, {
+    const blob = await put(`contracts/contract-${quote.id}-${contractToken}.pdf`, Buffer.from(pdfBytes), {
       access: 'public',
       contentType: 'application/pdf',
     });
