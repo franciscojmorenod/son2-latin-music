@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react'
 import { useRouter, useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { ArrowLeft, Calendar, Clock, MapPin, Mail, Phone, User, DollarSign, Edit, Save, X } from 'lucide-react'
+import { ArrowLeft, Calendar, Clock, MapPin, Mail, Phone, User, DollarSign, Edit, Save, X, FileText } from 'lucide-react'
 
 interface Quote {
   id: number
@@ -29,13 +29,12 @@ interface Quote {
   created_at: string
 }
 
-// Helper to safely format currency
 const formatCurrency = (value: any): string => {
-  if (!value) return 'Not set';
-  const num = typeof value === 'string' ? parseFloat(value) : value;
-  if (isNaN(num)) return 'Not set';
-  return `$${num.toFixed(2)}`;
-};
+  if (!value) return 'Not set'
+  const num = typeof value === 'string' ? parseFloat(value) : value
+  if (isNaN(num)) return 'Not set'
+  return `$${num.toFixed(2)}`
+}
 
 export default function QuoteDetailPage() {
   const { data: session, status } = useSession()
@@ -47,6 +46,8 @@ export default function QuoteDetailPage() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [generating, setGenerating] = useState(false)
+  const [contractUrl, setContractUrl] = useState<string | null>(null)  
 
   const [formData, setFormData] = useState({
     first_name: '',
@@ -72,10 +73,12 @@ export default function QuoteDetailPage() {
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/admin/login')
-    } else if (status === 'authenticated') {
+      return
+    }
+    if (status === 'authenticated') {
       fetchQuote()
     }
-  }, [status, router, quoteId])
+  }, [status])
 
   const fetchQuote = async () => {
     try {
@@ -116,9 +119,7 @@ export default function QuoteDetailPage() {
     try {
       const response = await fetch(`/api/admin/quotes/${quoteId}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           first_name: formData.first_name,
           last_name: formData.last_name,
@@ -182,6 +183,35 @@ export default function QuoteDetailPage() {
     }
   }
 
+    const handleGenerateContract = async () => {
+    if (!quote?.total_price || !quote?.deposit_amount) {
+      alert('Please set pricing before generating contract!')
+      return
+    }
+
+    setGenerating(true)
+    try {
+      const response = await fetch(`/api/admin/quotes/${quoteId}/contracts`, {
+        method: 'POST',
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setContractUrl(data.pdf_url)
+        alert('Contract generated successfully!')
+        await fetchQuote()
+      } else {
+        const errorData = await response.json()
+        alert(errorData.error || 'Failed to generate contract')
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      alert('Error generating contract')
+    } finally {
+      setGenerating(false)
+    }
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       weekday: 'long',
@@ -204,8 +234,8 @@ export default function QuoteDetailPage() {
       return (parseFloat(formData.total_price) - parseFloat(formData.deposit_amount)).toFixed(2)
     }
     if (quote?.balance_due) {
-      const num = typeof quote.balance_due === 'string' ? parseFloat(quote.balance_due) : quote.balance_due;
-      return num.toFixed(2);
+      const num = typeof quote.balance_due === 'string' ? parseFloat(quote.balance_due) : quote.balance_due
+      return num.toFixed(2)
     }
     return '0.00'
   }
@@ -240,48 +270,45 @@ export default function QuoteDetailPage() {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-5xl mx-auto">
-        {/* Header */}
         <div className="mb-8">
-          <button
-            onClick={() => router.push('/admin/dashboard')}
-            className="flex items-center gap-2 text-gray-400 hover:text-white mb-4 transition-colors"
-          >
+          <button onClick={() => router.push('/admin/dashboard')} className="flex items-center gap-2 text-gray-400 hover:text-white mb-4 transition-colors">
             <ArrowLeft size={20} />
             Back to Dashboard
           </button>
           
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold mb-2">
-                Quote #{quote.id} - {quote.first_name} {quote.last_name}
-              </h1>
-              <p className="text-gray-400">
-                Submitted {formatDate(quote.created_at)}
-              </p>
+              <h1 className="text-3xl font-bold mb-2">Quote #{quote.id} - {quote.first_name} {quote.last_name}</h1>
+              <p className="text-gray-400">Submitted {formatDate(quote.created_at)}</p>
             </div>
             
             {!editing ? (
-              <button
-                onClick={() => setEditing(true)}
-                className="flex items-center gap-2 px-6 py-3 bg-salsa-600 hover:bg-salsa-500 rounded-lg font-medium transition-colors"
-              >
-                <Edit size={18} />
-                Edit Quote
-              </button>
+              <div className="flex gap-3">
+                <button onClick={() => setEditing(true)} className="flex items-center gap-2 px-6 py-3 bg-salsa-600 hover:bg-salsa-500 rounded-lg font-medium transition-colors">
+                  <Edit size={18} />
+                  Edit Quote
+                </button>
+                
+                {quote.total_price && quote.deposit_amount && (
+                  <button onClick={handleGenerateContract} disabled={generating} className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-500 rounded-lg font-medium transition-colors disabled:opacity-50">
+                    <FileText size={18} />
+                    {generating ? 'Generating...' : 'Generate Contract'}
+                  </button>
+                )}
+                
+                {contractUrl && (
+                  <a href={contractUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition-colors">
+                    View Contract
+                  </a>
+                )}
+              </div>
             ) : (
               <div className="flex gap-3">
-                <button
-                  onClick={handleCancel}
-                  className="flex items-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium transition-colors"
-                >
+                <button onClick={handleCancel} className="flex items-center gap-2 px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg font-medium transition-colors">
                   <X size={18} />
                   Cancel
                 </button>
-                <button
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-500 rounded-lg font-medium transition-colors disabled:opacity-50"
-                >
+                <button onClick={handleSave} disabled={saving} className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-500 rounded-lg font-medium transition-colors disabled:opacity-50">
                   <Save size={18} />
                   {saving ? 'Saving...' : 'Save Changes'}
                 </button>
@@ -291,126 +318,74 @@ export default function QuoteDetailPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Customer Information - EDITABLE */}
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
               <User className="text-salsa-400" />
               Customer Information
             </h2>
-            
             <div className="space-y-3">
               <div>
                 <label className="text-gray-400 text-sm block mb-1">First Name</label>
                 {editing ? (
-                  <input
-                    type="text"
-                    value={formData.first_name}
-                    onChange={(e) => setFormData({...formData, first_name: e.target.value})}
-                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
-                  />
+                  <input type="text" value={formData.first_name} onChange={(e) => setFormData({...formData, first_name: e.target.value})} className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none" />
                 ) : (
                   <p className="text-lg">{quote.first_name}</p>
                 )}
               </div>
-
               <div>
                 <label className="text-gray-400 text-sm block mb-1">Last Name</label>
                 {editing ? (
-                  <input
-                    type="text"
-                    value={formData.last_name}
-                    onChange={(e) => setFormData({...formData, last_name: e.target.value})}
-                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
-                  />
+                  <input type="text" value={formData.last_name} onChange={(e) => setFormData({...formData, last_name: e.target.value})} className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none" />
                 ) : (
                   <p className="text-lg">{quote.last_name}</p>
                 )}
               </div>
-              
               <div>
-                <label className="text-gray-400 text-sm flex items-center gap-1 mb-1">
-                  <Mail size={14} /> Email
-                </label>
+                <label className="text-gray-400 text-sm flex items-center gap-1 mb-1"><Mail size={14} /> Email</label>
                 {editing ? (
-                  <input
-                    type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
-                  />
+                  <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none" />
                 ) : (
-                  <a href={`mailto:${quote.email}`} className="text-salsa-400 hover:text-salsa-300">
-                    {quote.email}
-                  </a>
+                  <a href={`mailto:${quote.email}`} className="text-salsa-400 hover:text-salsa-300">{quote.email}</a>
                 )}
               </div>
-              
               <div>
-                <label className="text-gray-400 text-sm flex items-center gap-1 mb-1">
-                  <Phone size={14} /> Phone
-                </label>
+                <label className="text-gray-400 text-sm flex items-center gap-1 mb-1"><Phone size={14} /> Phone</label>
                 {editing ? (
-                  <input
-                    type="tel"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
-                  />
+                  <input type="tel" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none" />
                 ) : (
-                  <a href={`tel:${quote.phone}`} className="text-salsa-400 hover:text-salsa-300">
-                    {quote.phone}
-                  </a>
+                  <a href={`tel:${quote.phone}`} className="text-salsa-400 hover:text-salsa-300">{quote.phone}</a>
                 )}
               </div>
             </div>
           </div>
 
-          {/* Event Location - EDITABLE */}
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
               <MapPin className="text-salsa-400" />
               Event Location
             </h2>
-            
             <div className="space-y-3">
               <div>
                 <label className="text-gray-400 text-sm block mb-1">Address</label>
                 {editing ? (
-                  <input
-                    type="text"
-                    value={formData.address}
-                    onChange={(e) => setFormData({...formData, address: e.target.value})}
-                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
-                  />
+                  <input type="text" value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none" />
                 ) : (
                   <p className="text-lg">{quote.address}</p>
                 )}
               </div>
-
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-gray-400 text-sm block mb-1">City</label>
                   {editing ? (
-                    <input
-                      type="text"
-                      value={formData.city}
-                      onChange={(e) => setFormData({...formData, city: e.target.value})}
-                      className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
-                    />
+                    <input type="text" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none" />
                   ) : (
                     <p className="text-lg">{quote.city}</p>
                   )}
                 </div>
-
                 <div>
                   <label className="text-gray-400 text-sm block mb-1">ZIP</label>
                   {editing ? (
-                    <input
-                      type="text"
-                      value={formData.zip}
-                      onChange={(e) => setFormData({...formData, zip: e.target.value})}
-                      className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
-                    />
+                    <input type="text" value={formData.zip} onChange={(e) => setFormData({...formData, zip: e.target.value})} className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none" />
                   ) : (
                     <p className="text-lg">{quote.zip}</p>
                   )}
@@ -419,67 +394,40 @@ export default function QuoteDetailPage() {
             </div>
           </div>
 
-          {/* Event Details - EDITABLE */}
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
               <Calendar className="text-salsa-400" />
               Event Details
             </h2>
-            
             <div className="space-y-3">
               <div>
                 <label className="text-gray-400 text-sm block mb-1">Event Date</label>
                 {editing ? (
-                  <input
-                    type="date"
-                    value={formData.event_date}
-                    onChange={(e) => setFormData({...formData, event_date: e.target.value})}
-                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
-                  />
+                  <input type="date" value={formData.event_date} onChange={(e) => setFormData({...formData, event_date: e.target.value})} className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none" />
                 ) : (
                   <p className="text-lg">{formatDate(quote.event_date)}</p>
                 )}
               </div>
-              
               <div>
-                <label className="text-gray-400 text-sm flex items-center gap-1 mb-1">
-                  <Clock size={14} /> Start Time
-                </label>
+                <label className="text-gray-400 text-sm flex items-center gap-1 mb-1"><Clock size={14} /> Start Time</label>
                 {editing ? (
-                  <input
-                    type="time"
-                    value={formData.start_time}
-                    onChange={(e) => setFormData({...formData, start_time: e.target.value})}
-                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
-                  />
+                  <input type="time" value={formData.start_time} onChange={(e) => setFormData({...formData, start_time: e.target.value})} className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none" />
                 ) : (
                   <p className="text-lg">{formatTime(quote.start_time)}</p>
                 )}
               </div>
-              
               <div>
                 <label className="text-gray-400 text-sm block mb-1">Duration</label>
                 {editing ? (
-                  <input
-                    type="text"
-                    value={formData.duration}
-                    onChange={(e) => setFormData({...formData, duration: e.target.value})}
-                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
-                    placeholder="3 hours"
-                  />
+                  <input type="text" value={formData.duration} onChange={(e) => setFormData({...formData, duration: e.target.value})} className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none" placeholder="3 hours" />
                 ) : (
                   <p className="text-lg">{quote.duration}</p>
                 )}
               </div>
-              
               <div>
                 <label className="text-gray-400 text-sm block mb-1">Setting</label>
                 {editing ? (
-                  <select
-                    value={formData.indoor_outdoor}
-                    onChange={(e) => setFormData({...formData, indoor_outdoor: e.target.value})}
-                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
-                  >
+                  <select value={formData.indoor_outdoor} onChange={(e) => setFormData({...formData, indoor_outdoor: e.target.value})} className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none">
                     <option value="">Select...</option>
                     <option value="indoor">Indoor</option>
                     <option value="outdoor">Outdoor</option>
@@ -489,16 +437,10 @@ export default function QuoteDetailPage() {
                   <p className="text-lg capitalize">{quote.indoor_outdoor || 'Not specified'}</p>
                 )}
               </div>
-
               <div>
                 <label className="text-gray-400 text-sm block mb-1">Special Requests</label>
                 {editing ? (
-                  <textarea
-                    value={formData.special_request_1}
-                    onChange={(e) => setFormData({...formData, special_request_1: e.target.value})}
-                    rows={3}
-                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none resize-none"
-                  />
+                  <textarea value={formData.special_request_1} onChange={(e) => setFormData({...formData, special_request_1: e.target.value})} rows={3} className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none resize-none" />
                 ) : (
                   <p className="text-gray-300">{quote.special_request_1 || 'None'}</p>
                 )}
@@ -506,23 +448,16 @@ export default function QuoteDetailPage() {
             </div>
           </div>
 
-          {/* Pricing & Status - EDITABLE */}
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
               <DollarSign className="text-green-400" />
               Pricing & Status
             </h2>
-            
             <div className="space-y-4">
-              {/* Status */}
               <div>
                 <label className="text-gray-400 text-sm block mb-2">Quote Status</label>
                 {editing ? (
-                  <select
-                    value={formData.status}
-                    onChange={(e) => setFormData({...formData, status: e.target.value})}
-                    className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
-                  >
+                  <select value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})} className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none">
                     <option value="pending">Pending</option>
                     <option value="quoted">Quoted</option>
                     <option value="booked">Booked</option>
@@ -530,110 +465,55 @@ export default function QuoteDetailPage() {
                     <option value="cancelled">Cancelled</option>
                   </select>
                 ) : (
-                  <span className={`inline-block px-4 py-2 rounded-full text-sm font-medium capitalize ${getStatusColor(quote.status)}`}>
-                    {quote.status}
-                  </span>
+                  <span className={`inline-block px-4 py-2 rounded-full text-sm font-medium capitalize ${getStatusColor(quote.status)}`}>{quote.status}</span>
                 )}
               </div>
-
-              {/* Total Price */}
               <div>
                 <label className="text-gray-400 text-sm block mb-2">Total Price</label>
                 {editing ? (
                   <div className="relative">
                     <span className="absolute left-3 top-3 text-gray-400">$</span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={formData.total_price}
-                      onChange={(e) => setFormData({...formData, total_price: e.target.value})}
-                      className="w-full pl-8 pr-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
-                      placeholder="1300.00"
-                    />
+                    <input type="number" step="0.01" value={formData.total_price} onChange={(e) => setFormData({...formData, total_price: e.target.value})} className="w-full pl-8 pr-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none" placeholder="1300.00" />
                   </div>
                 ) : (
-                  <p className="text-2xl font-bold text-green-400">
-                    {formatCurrency(quote.total_price)}
-                  </p>
+                  <p className="text-2xl font-bold text-green-400">{formatCurrency(quote.total_price)}</p>
                 )}
               </div>
-              
-              {/* Deposit */}
               <div>
                 <label className="text-gray-400 text-sm block mb-2">Deposit Amount</label>
                 {editing ? (
                   <div className="relative">
                     <span className="absolute left-3 top-3 text-gray-400">$</span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={formData.deposit_amount}
-                      onChange={(e) => setFormData({...formData, deposit_amount: e.target.value})}
-                      className="w-full pl-8 pr-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
-                      placeholder="650.00"
-                    />
+                    <input type="number" step="0.01" value={formData.deposit_amount} onChange={(e) => setFormData({...formData, deposit_amount: e.target.value})} className="w-full pl-8 pr-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none" placeholder="650.00" />
                   </div>
                 ) : (
-                  <p className="text-xl">
-                    {formatCurrency(quote.deposit_amount)}
-                  </p>
+                  <p className="text-xl">{formatCurrency(quote.deposit_amount)}</p>
                 )}
               </div>
-              
-              {/* Balance Due */}
               <div className="pt-4 border-t border-gray-700">
                 <label className="text-gray-400 text-sm">Balance Due</label>
-                <p className="text-xl font-bold">
-                  ${calculateBalance()}
-                </p>
+                <p className="text-xl font-bold">${calculateBalance()}</p>
               </div>
-
-              {/* Musicians */}
               <div className="pt-4 border-t border-gray-700">
                 <label className="text-gray-400 text-sm block mb-2">Number of Musicians</label>
                 {editing ? (
-                  <input
-                    type="number"
-                    min="1"
-                    max="20"
-                    value={formData.num_musicians}
-                    onChange={(e) => setFormData({...formData, num_musicians: e.target.value})}
-                    className="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
-                  />
+                  <input type="number" min="1" max="20" value={formData.num_musicians} onChange={(e) => setFormData({...formData, num_musicians: e.target.value})} className="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none" />
                 ) : (
                   <p className="text-lg">{quote.num_musicians}</p>
                 )}
               </div>
-
-              {/* Sets */}
               <div>
                 <label className="text-gray-400 text-sm block mb-2">Number of Sets</label>
                 {editing ? (
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={formData.num_sets}
-                    onChange={(e) => setFormData({...formData, num_sets: e.target.value})}
-                    className="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
-                  />
+                  <input type="number" min="1" max="10" value={formData.num_sets} onChange={(e) => setFormData({...formData, num_sets: e.target.value})} className="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none" />
                 ) : (
                   <p className="text-lg">{quote.num_sets}</p>
                 )}
               </div>
-
-              {/* Breaks */}
               <div>
                 <label className="text-gray-400 text-sm block mb-2">Number of Breaks</label>
                 {editing ? (
-                  <input
-                    type="number"
-                    min="0"
-                    max="10"
-                    value={formData.num_breaks}
-                    onChange={(e) => setFormData({...formData, num_breaks: e.target.value})}
-                    className="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none"
-                  />
+                  <input type="number" min="0" max="10" value={formData.num_breaks} onChange={(e) => setFormData({...formData, num_breaks: e.target.value})} className="w-full px-4 py-3 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none" />
                 ) : (
                   <p className="text-lg">{quote.num_breaks}</p>
                 )}
