@@ -1,7 +1,7 @@
 'use client'
 
 import { useParams } from 'next/navigation'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import SignatureCanvas from 'react-signature-canvas'
 import { CheckCircle, FileText, Loader2, XCircle } from 'lucide-react'
 
@@ -30,11 +30,7 @@ export default function SignContractPage() {
   
   const sigPadRef = useRef<SignatureCanvas>(null)
 
-  useEffect(() => {
-    fetchContract()
-  }, [token])
-
-  const fetchContract = async () => {
+  const fetchContract = useCallback(async () => {
     try {
       const response = await fetch(`/api/contracts/${token}`)
       if (response.ok) {
@@ -49,7 +45,11 @@ export default function SignContractPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [token])
+
+  useEffect(() => {
+    fetchContract()
+  }, [fetchContract])
 
   const clearSignature = () => {
     sigPadRef.current?.clear()
@@ -138,7 +138,7 @@ export default function SignContractPage() {
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2" style={{ color: '#dc2626' }}>SON2 LATIN MUSIC</h1>
+          <h1 className="text-4xl font-bold mb-2 text-red-600">SON2 LATIN MUSIC</h1>
           <h2 className="text-2xl font-semibold mb-4">Contract Signing</h2>
           <p className="text-gray-400">
             Contract #{contract.quote_id} • Expires: {new Date(contract.expires_at).toLocaleDateString()}
