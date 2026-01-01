@@ -1,4 +1,6 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import * as fs from 'fs';
+import * as path from 'path';
 
 interface ContractData {
   quote_id: number;
@@ -26,7 +28,11 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-  const cursiveFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBoldItalic);
+  
+  // Load Dancing Script font
+  const fontPath = path.join(process.cwd(), 'public', 'fonts', 'DancingScript-Bold.ttf');
+  const fontBytes = fs.readFileSync(fontPath);
+  const cursiveFont = await pdfDoc.embedFont(fontBytes);
   
   const black = rgb(0, 0, 0);
   const darkGray = rgb(0.3, 0.3, 0.3);
@@ -464,9 +470,9 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   // Draw Francisco's signature in cursive ABOVE the line
   const signatureY = y + 8;
   page2.drawText('Francisco Moreno', {
-    x: col2X + 20,
+    x: col2X + 10,
     y: signatureY,
-    size: 18,
+    size: 22,
     font: cursiveFont,
     color: black,
   });
