@@ -34,7 +34,7 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
   
   // Load Dancing Script font
-  const fontPath = path.join(process.cwd(), 'public', 'fonts', 'DancingScript-Bold.ttf');
+  const fontPath = path.join(process.cwd(), 'public', 'fonts', 'DancingScript-VariableFont_wght.ttf');
   const fontBytes = fs.readFileSync(fontPath);
   const cursiveFont = await pdfDoc.embedFont(fontBytes);
   
