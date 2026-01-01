@@ -26,7 +26,7 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-  const cursiveFont = await pdfDoc.embedFont(StandardFonts.TimesRomanItalic);
+  const cursiveFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBoldItalic);
   
   const black = rgb(0, 0, 0);
   const darkGray = rgb(0.3, 0.3, 0.3);
@@ -462,7 +462,7 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   y -= 40;
   
   // Draw Francisco's signature in cursive ABOVE the line
-  const signatureY = y + 25;
+  const signatureY = y + 8;
   page2.drawText('Francisco Moreno', {
     x: col2X + 20,
     y: signatureY,
@@ -494,7 +494,7 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   y -= 25;
   
   // Add Francisco's date ABOVE the line
-  const dateY = y + 15;
+  const dateY = y + 5;
   const todayFormatted = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   page2.drawText(todayFormatted, {
     x: col2X + 20,
