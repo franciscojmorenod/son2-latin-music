@@ -72,7 +72,6 @@ export default function SignContractPage() {
       })
 
       if (response.ok) {
-        const data = await response.json()
         setSigned(true)
         await fetchContract()
         alert('Contract signed successfully!')
@@ -113,7 +112,9 @@ export default function SignContractPage() {
         <div className="max-w-2xl w-full bg-gray-800 rounded-xl p-8 text-center border border-green-500">
           <CheckCircle className="mx-auto mb-4 text-green-500" size={64} />
           <h1 className="text-3xl font-bold text-white mb-4">Contract Already Signed</h1>
-          <p className="text-gray-400 mb-6">This contract was signed on {new Date(contract.signed_at!).toLocaleString()}</p>
+          <p className="text-gray-400 mb-6">
+            This contract was signed on {new Date(contract.signed_at!).toLocaleString()}
+          </p>
           
           {contract.signed_pdf_url && (
             
@@ -136,9 +137,8 @@ export default function SignContractPage() {
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold mb-2 text-salsa-400">SON2 LATIN MUSIC</h1>
+          <h1 className="text-4xl font-bold mb-2" style={{ color: '#dc2626' }}>SON2 LATIN MUSIC</h1>
           <h2 className="text-2xl font-semibold mb-4">Contract Signing</h2>
           <p className="text-gray-400">
             Contract #{contract.quote_id} • Expires: {new Date(contract.expires_at).toLocaleDateString()}
@@ -151,10 +151,9 @@ export default function SignContractPage() {
           </div>
         )}
 
-        {/* Contract Preview */}
         <div className="bg-gray-800 rounded-xl p-6 mb-6 border border-gray-700">
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-            <FileText className="text-salsa-400" />
+            <FileText className="text-red-600" />
             Contract Preview
           </h3>
           
@@ -176,7 +175,6 @@ export default function SignContractPage() {
           </a>
         </div>
 
-        {/* Signature Section */}
         {!isExpired && (
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
             <h3 className="text-xl font-bold mb-4">Your Signature</h3>
