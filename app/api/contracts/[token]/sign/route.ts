@@ -77,12 +77,12 @@ export async function POST(
     const col1X = margin + 20;
     
     // Position signature above the client signature line
-    const signatureY = 340;
-    const signatureWidth = 130;
-    const signatureHeight = 40;
+    const signatureY = 330;
+    const signatureWidth = 135;
+    const signatureHeight = 46;
 
     secondPage.drawImage(signatureImage, {
-      x: col1X + 15,
+      x: col1X + 10,
       y: signatureY,
       width: signatureWidth,
       height: signatureHeight,
