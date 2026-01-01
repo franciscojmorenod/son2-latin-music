@@ -47,7 +47,9 @@ export default function QuoteDetailPage() {
   const [editing, setEditing] = useState(false)
   const [saving, setSaving] = useState(false)
   const [generating, setGenerating] = useState(false)
-  const [contractUrl, setContractUrl] = useState<string | null>(null)  
+  const [contractUrl, setContractUrl] = useState<string | null>(null)
+  const [signedContractUrl, setSignedContractUrl] = useState<string | null>(null)
+  const [contractToken, setContractToken] = useState<string | null>(null)
 
   const [formData, setFormData] = useState({
     first_name: '',
@@ -106,6 +108,19 @@ export default function QuoteDetailPage() {
           num_breaks: data.num_breaks.toString(),
           status: data.status
         })
+
+        // Fetch contract info if exists
+        try {
+          const contractResponse = await fetch(`/api/admin/quotes/${quoteId}/contracts/latest`)
+          if (contractResponse.ok) {
+            const contractData = await contractResponse.json()
+            setContractUrl(contractData.unsigned_pdf_url)
+            setSignedContractUrl(contractData.signed_pdf_url)
+            setContractToken(contractData.contract_token)
+          }
+        } catch (err) {
+          console.log('No contract found yet')
+        }
       }
     } catch (error) {
       console.error('Error fetching quote:', error)
@@ -183,21 +198,22 @@ export default function QuoteDetailPage() {
     }
   }
 
-    const handleGenerateContract = async () => {
+  const handleGenerateContract = async () => {
     if (!quote?.total_price || !quote?.deposit_amount) {
       alert('Please set pricing before generating contract!')
       return
     }
-
+    
     setGenerating(true)
     try {
       const response = await fetch(`/api/admin/quotes/${quoteId}/contracts`, {
         method: 'POST',
       })
-
+      
       if (response.ok) {
         const data = await response.json()
         setContractUrl(data.pdf_url)
+        setContractToken(data.contract_token)
         alert('Contract generated successfully!')
         await fetchQuote()
       } else {
@@ -283,13 +299,13 @@ export default function QuoteDetailPage() {
             </div>
             
             {!editing ? (
-              <div className="flex gap-3">
+              <div className="flex gap-3 flex-wrap">
                 <button onClick={() => setEditing(true)} className="flex items-center gap-2 px-6 py-3 bg-salsa-600 hover:bg-salsa-500 rounded-lg font-medium transition-colors">
                   <Edit size={18} />
                   Edit Quote
                 </button>
                 
-                {quote.total_price && quote.deposit_amount && (
+                {quote.total_price && quote.deposit_amount && !contractUrl && (
                   <button onClick={handleGenerateContract} disabled={generating} className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-500 rounded-lg font-medium transition-colors disabled:opacity-50">
                     <FileText size={18} />
                     {generating ? 'Generating...' : 'Generate Contract'}
@@ -297,9 +313,31 @@ export default function QuoteDetailPage() {
                 )}
                 
                 {contractUrl && (
-                  <a href={contractUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition-colors">
-                    View Contract
-                  </a>
+                  <div className="flex gap-3 flex-wrap">
+                    <a href={contractUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-lg font-medium transition-colors">
+                      <FileText size={18} />
+                      View Contract
+                    </a>
+                    
+                    {contractToken && !signedContractUrl && (
+                      <button
+                        onClick={() => {
+                          const url = `${window.location.origin}/sign/${contractToken}`
+                          navigator.clipboard.writeText(url)
+                          alert('✅ Signing link copied to clipboard!\n\nShare this link with your customer:\n' + url)
+                        }}
+                        className="flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-500 rounded-lg font-medium transition-colors"
+                      >
+                        📋 Copy Signing Link
+                      </button>
+                    )}
+                    
+                    {signedContractUrl && (
+                      <a href={signedContractUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-500 rounded-lg font-medium transition-colors">
+                        ✅ View Signed Contract
+                      </a>
+                    )}
+                  </div>
                 )}
               </div>
             ) : (
