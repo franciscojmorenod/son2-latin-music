@@ -30,9 +30,8 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   const black = rgb(0, 0, 0);
   const darkGray = rgb(0.3, 0.3, 0.3);
   const lightGray = rgb(0.9, 0.9, 0.9);
-  const primaryColor = rgb(0.8, 0.2, 0.2); // Salsa red
+  const primaryColor = rgb(0.8, 0.2, 0.2);
   
-  // ==================== PAGE 1 ====================
   const page1 = pdfDoc.addPage([612, 792]);
   const { width, height } = page1.getSize();
   const margin = 50;
@@ -40,7 +39,6 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   let y = height - 40;
   
-  // HEADER - Centered Logo/Title
   const logoText = 'SON2 LATIN MUSIC';
   const logoWidth = boldFont.widthOfTextAtSize(logoText, 24);
   page1.drawText(logoText, {
@@ -53,7 +51,6 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   y -= 30;
   
-  // Subtitle - Centered
   const subtitleText = 'Contract for Services';
   const subtitleWidth = boldFont.widthOfTextAtSize(subtitleText, 16);
   page1.drawText(subtitleText, {
@@ -66,7 +63,6 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   y -= 10;
   
-  // Decorative line
   page1.drawLine({
     start: { x: margin, y },
     end: { x: width - margin, y },
@@ -76,7 +72,6 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   y -= 25;
   
-  // Contract Date - Centered
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   const contractDateText = `Contract Date: ${today}`;
   const dateWidth = font.widthOfTextAtSize(contractDateText, 10);
@@ -90,8 +85,7 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   y -= 25;
   
-  // Contract Introduction
-  const contractIntro = `This contract for the personal services of musicians, made this ${today}, between ${data.customer_name} (hereinafter called the 'Employer') and SON2 LATIN MUSIC (hereinafter called 'Employees' or 'SON2').`;
+  const contractIntro = `This contract for the professional services of musicians, made this ${today}, between ${data.customer_name} (hereinafter called the 'Employer') and SON2 LATIN MUSIC (hereinafter called 'Employees' or 'SON2').`;
   
   for (const line of wrapText(contractIntro, 85)) {
     page1.drawText(line, { x: margin, y, size: 10, font, color: black });
@@ -100,7 +94,6 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   y -= 10;
   
-  // Agreement paragraph
   const para2 = "The Leader represents that the Employees already designated have agreed to be bound by the said terms and conditions. The Employees severally agree to render collectively to the Employer services as musicians as the band known as SON2 LATIN MUSIC.";
   for (const line of wrapText(para2, 85)) {
     page1.drawText(line, { x: margin, y, size: 10, font, color: black });
@@ -109,7 +102,6 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   y -= 15;
   
-  // Performance Details Section
   page1.drawRectangle({
     x: margin,
     y: y - 5,
@@ -195,7 +187,6 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   y -= 20;
   
-  // Event Details Section
   page1.drawRectangle({
     x: margin,
     y: y - 5,
@@ -214,17 +205,12 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   y -= 25;
   
-  // Client Information
   page1.drawText('Client Name:', { x: margin + 10, y, size: 10, font: boldFont, color: darkGray });
   page1.drawText(data.customer_name, { x: margin + 120, y, size: 10, font, color: black });
   y -= 14;
   
   page1.drawText('Event Location:', { x: margin + 10, y, size: 10, font: boldFont, color: darkGray });
-  page1.drawText(data.customer_address, { x: margin + 120, y, size: 10, font, color: black });
-  y -= 14;
-  
-  page1.drawText('', { x: margin + 10, y, size: 10, font: boldFont, color: darkGray });
-  page1.drawText(`${data.customer_city}, FL ${data.customer_zip}`, { x: margin + 120, y, size: 10, font, color: black });
+  page1.drawText(`${data.customer_address}, ${data.customer_city}, FL ${data.customer_zip}`, { x: margin + 120, y, size: 10, font, color: black });
   y -= 14;
   
   page1.drawText('Email:', { x: margin + 10, y, size: 10, font: boldFont, color: darkGray });
@@ -235,7 +221,6 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   page1.drawText(data.customer_phone, { x: margin + 120, y, size: 10, font, color: black });
   y -= 20;
   
-  // Event Schedule
   const eventDateFormatted = new Date(data.event_date).toLocaleDateString('en-US', {
     weekday: 'long',
     day: 'numeric',
@@ -276,7 +261,6 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   y -= 20;
   
-  // Payment Section
   page1.drawRectangle({
     x: margin,
     y: y - 5,
@@ -325,28 +309,29 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   });
   y -= 14;
   
-  page1.drawText('Music will NOT start before receiving Full Payment.', {
-    x: margin + 10,
+  const warningText = 'Music will NOT start before receiving Full Payment.';
+  const warningWidth = boldFont.widthOfTextAtSize(warningText, 10);
+  page1.drawText(warningText, {
+    x: (width - warningWidth) / 2,
     y,
     size: 10,
     font: boldFont,
     color: primaryColor,
   });
   
-  // Footer - Page 1
-  page1.drawText('Page 1 of 2', {
-    x: (width - font.widthOfTextAtSize('Page 1 of 2', 9)) / 2,
+  const page1Text = 'Page 1 of 2';
+  const page1Width = font.widthOfTextAtSize(page1Text, 9);
+  page1.drawText(page1Text, {
+    x: width - margin - page1Width,
     y: 30,
     size: 9,
     font,
     color: darkGray,
   });
   
-  // ==================== PAGE 2 ====================
   const page2 = pdfDoc.addPage([612, 792]);
   y = height - 40;
   
-  // Header - Page 2
   const logoWidth2 = boldFont.widthOfTextAtSize(logoText, 20);
   page2.drawText(logoText, {
     x: (width - logoWidth2) / 2,
@@ -366,7 +351,6 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   y -= 30;
   
-  // Additional Terms Section
   page2.drawRectangle({
     x: margin,
     y: y - 5,
@@ -416,7 +400,6 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   y -= 30;
   
-  // Signatures Section
   page2.drawRectangle({
     x: margin,
     y: y - 5,
@@ -435,11 +418,9 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   y -= 30;
   
-  // Two-column signature layout
   const col1X = margin + 20;
   const col2X = width / 2 + 20;
   
-  // Client Signature (Left)
   page2.drawText('CLIENT (EMPLOYER)', {
     x: col1X,
     y,
@@ -448,7 +429,6 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
     color: darkGray,
   });
   
-  // Band Signature (Right)
   page2.drawText('SON2 LATIN MUSIC (EMPLOYEE)', {
     x: col2X,
     y,
@@ -459,7 +439,6 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   y -= 40;
   
-  // Signature lines
   page2.drawLine({
     start: { x: col1X, y },
     end: { x: col1X + 200, y },
@@ -481,7 +460,6 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   y -= 25;
   
-  // Date lines
   page2.drawLine({
     start: { x: col1X, y },
     end: { x: col1X + 200, y },
@@ -503,7 +481,6 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   y -= 40;
   
-  // Contact Information
   page2.drawRectangle({
     x: margin,
     y: y - 5,
@@ -547,9 +524,10 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
     color: black,
   });
   
-  // Footer - Page 2
-  page2.drawText('Page 2 of 2', {
-    x: (width - font.widthOfTextAtSize('Page 2 of 2', 9)) / 2,
+  const page2Text = 'Page 2 of 2';
+  const page2Width = font.widthOfTextAtSize(page2Text, 9);
+  page2.drawText(page2Text, {
+    x: width - margin - page2Width,
     y: 30,
     size: 9,
     font,
