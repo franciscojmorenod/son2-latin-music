@@ -8,12 +8,17 @@ export async function POST(
   { params }: { params: { token: string } }
 ) {
   try {
+    console.log('=== SIGNING CONTRACT ===');
+    console.log('Token:', params.token);
+    
     const body = await request.json();
     const { signature } = body;
 
     if (!signature) {
       return NextResponse.json({ error: 'Signature required' }, { status: 400 });
     }
+
+    console.log('Fetching contract from database...');
 
     // Fetch contract
     const contractResult = await sql`
@@ -22,18 +27,22 @@ export async function POST(
     `;
 
     if (contractResult.rows.length === 0) {
+      console.log('Contract not found');
       return NextResponse.json({ error: 'Contract not found' }, { status: 404 });
     }
 
     const contract = contractResult.rows[0];
+    console.log('Contract found:', contract.id, 'Status:', contract.status);
 
     // Check if already signed
     if (contract.status === 'signed') {
+      console.log('Contract already signed');
       return NextResponse.json({ error: 'Contract already signed' }, { status: 400 });
     }
 
     // Check if expired
     if (new Date(contract.expires_at) < new Date()) {
+      console.log('Contract expired');
       return NextResponse.json({ error: 'Contract has expired' }, { status: 400 });
     }
 
@@ -42,6 +51,7 @@ export async function POST(
     // Fetch the unsigned PDF
     const pdfResponse = await fetch(contract.unsigned_pdf_url);
     if (!pdfResponse.ok) {
+      console.log('Failed to fetch PDF');
       throw new Error('Failed to fetch unsigned PDF');
     }
     const pdfBytes = await pdfResponse.arrayBuffer();
@@ -62,13 +72,12 @@ export async function POST(
     console.log('Adding signature to PDF...');
 
     // Add signature to page 2 (client signature area)
-    const { width, height } = secondPage.getSize();
+    const { width } = secondPage.getSize();
     const margin = 50;
     const col1X = margin + 20;
     
     // Position signature above the client signature line
-    // Based on our layout: signatures section is around y=400, signature line at y=360
-    const signatureY = 365; // Just above the signature line
+    const signatureY = 365;
     const signatureWidth = 150;
     const signatureHeight = 40;
 
@@ -102,10 +111,10 @@ export async function POST(
     const forwarded = request.headers.get('x-forwarded-for');
     const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown';
 
-    console.log('Updating database...');
+    console.log('Updating contract in database...');
 
     // Update contract in database
-    await sql`
+    const updateResult = await sql`
       UPDATE contracts
       SET 
         status = 'signed',
@@ -113,25 +122,43 @@ export async function POST(
         signed_at = CURRENT_TIMESTAMP,
         signer_ip = ${ip}
       WHERE contract_token = ${params.token}
+      RETURNING id, status, signed_pdf_url, signed_at
     `;
 
+    console.log('Contract update result:', updateResult.rows[0]);
+
+    if (updateResult.rowCount === 0) {
+      console.log('WARNING: Contract update affected 0 rows!');
+      throw new Error('Failed to update contract');
+    }
+
+    console.log('Updating quote status to booked...');
+
     // Update quote status to booked
-    await sql`
+    const quoteUpdateResult = await sql`
       UPDATE quote_requests
       SET status = 'booked'
       WHERE id = ${contract.quote_id}
+      RETURNING id, status
     `;
 
-    console.log('Contract signed successfully!');
+    console.log('Quote update result:', quoteUpdateResult.rows[0]);
+
+    console.log('=== CONTRACT SIGNED SUCCESSFULLY ===');
 
     return NextResponse.json({
       success: true,
       signed_pdf_url: blob.url,
+      status: 'signed',
+      signed_at: updateResult.rows[0].signed_at,
       message: 'Contract signed successfully'
     });
 
   } catch (error: any) {
-    console.error('Error signing contract:', error);
+    console.error('!!! ERROR SIGNING CONTRACT !!!');
+    console.error('Error details:', error);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
     return NextResponse.json(
       { error: 'Failed to sign contract', details: error.message },
       { status: 500 }
