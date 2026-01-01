@@ -1,4 +1,5 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -25,6 +26,9 @@ interface ContractData {
 
 export async function generateContract(data: ContractData): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
+  
+  // Register fontkit for custom fonts
+  pdfDoc.registerFontkit(fontkit);
   
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
