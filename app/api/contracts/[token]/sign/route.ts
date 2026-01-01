@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sql } from '@vercel/postgres';
 import { put } from '@vercel/blob';
-import { PDFDocument } from 'pdf-lib';
+import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 
 export async function POST(
   request: NextRequest,
@@ -77,9 +77,9 @@ export async function POST(
     const col1X = margin + 20;
     
     // Position signature above the client signature line
-    const signatureY = 365;
-    const signatureWidth = 150;
-    const signatureHeight = 40;
+    const signatureY = 330;
+    const signatureWidth = 135;
+    const signatureHeight = 46;
 
     secondPage.drawImage(signatureImage, {
       x: col1X + 10,
@@ -87,6 +87,24 @@ export async function POST(
       width: signatureWidth,
       height: signatureHeight,
     });
+
+    // Add customer's signing date closer to date line
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const customerSignDate = new Date().toLocaleDateString('en-US', { 
+      month: 'long', 
+      day: 'numeric', 
+      year: 'numeric' 
+    });
+
+    const dateY = 280; // Position closer to date line (below signature section)
+    secondPage.drawText(customerSignDate, {
+      x: col1X + 20,
+      y: dateY,
+      size: 10,
+      font,
+      color: rgb(0, 0, 0),
+    });
+
 
     console.log('Saving signed PDF...');
 
