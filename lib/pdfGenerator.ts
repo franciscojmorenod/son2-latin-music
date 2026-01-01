@@ -26,7 +26,7 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-  const cursiveFont = await pdfDoc.embedFont(StandardFonts.TimesItalic);
+  const cursiveFont = await pdfDoc.embedFont(StandardFonts.TimesRomanItalic);
   
   const black = rgb(0, 0, 0);
   const darkGray = rgb(0.3, 0.3, 0.3);
