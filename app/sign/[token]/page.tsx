@@ -52,7 +52,9 @@ export default function SignContractPage() {
   }, [fetchContract])
 
   const clearSignature = () => {
-    sigPadRef.current?.clear()
+    if (sigPadRef.current) {
+      sigPadRef.current.clear()
+    }
   }
 
   const handleSign = async () => {
@@ -113,7 +115,7 @@ export default function SignContractPage() {
           <CheckCircle className="mx-auto mb-4 text-green-500" size={64} />
           <h1 className="text-3xl font-bold text-white mb-4">Contract Already Signed</h1>
           <p className="text-gray-400 mb-6">
-            This contract was signed on {new Date(contract.signed_at!).toLocaleString()}
+            This contract was signed on {contract.signed_at ? new Date(contract.signed_at).toLocaleString() : 'Unknown'}
           </p>
           
           {contract.signed_pdf_url && (
@@ -146,8 +148,8 @@ export default function SignContractPage() {
         </div>
 
         {isExpired && (
-          <div className="bg-red-500/10 border border-red-500 rounded-lg p-4 mb-6 text-center">
-            <p className="text-red-400 font-semibold">⚠️ This contract has expired</p>
+          <div className="bg-red-900 bg-opacity-20 border border-red-500 rounded-lg p-4 mb-6 text-center">
+            <p className="text-red-400 font-semibold">This contract has expired</p>
           </div>
         )}
 
