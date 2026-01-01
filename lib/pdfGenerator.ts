@@ -31,184 +31,192 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   
   const black = rgb(0, 0, 0);
   const darkGray = rgb(0.3, 0.3, 0.3);
-  const primaryColor = rgb(0.8, 0.2, 0.2);
   
-  let yPosition = height - 50;
+  let y = height - 40;
   
-  page.drawText('SON2 LATIN MUSIC', {
-    x: 50,
-    y: yPosition,
-    size: 24,
-    font: boldFont,
-    color: primaryColor,
-  });
+  // Header
+  page.drawText('SON2 LATIN MUSIC', { x: 50, y, size: 16, font: boldFont, color: black });
+  y -= 25;
+  page.drawText('Contract for Services', { x: 50, y, size: 14, font: boldFont, color: black });
+  y -= 25;
   
-  yPosition -= 20;
-  page.drawText('PERFORMANCE CONTRACT', {
-    x: 50,
-    y: yPosition,
-    size: 16,
-    font: boldFont,
-    color: black,
-  });
+  // Contract intro
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  const contractIntro = `This contract for the personal services of musicians, made this ${today}, between ${data.customer_name} (hereinafter called the 'Employer') and SON2 LATIN MUSIC (hereinafter called 'Employees' or 'SON2').`;
   
-  yPosition -= 10;
-  page.drawLine({
-    start: { x: 50, y: yPosition },
-    end: { x: width - 50, y: yPosition },
-    thickness: 2,
-    color: primaryColor,
-  });
-  
-  yPosition -= 30;
-  
-  page.drawText(`Contract #${data.quote_id}`, {
-    x: 50,
-    y: yPosition,
-    size: 10,
-    font: font,
-    color: darkGray,
-  });
-  
-  page.drawText(`Date: ${new Date().toLocaleDateString()}`, {
-    x: width - 150,
-    y: yPosition,
-    size: 10,
-    font: font,
-    color: darkGray,
-  });
-  
-  yPosition -= 30;
-  
-  page.drawText('CLIENT INFORMATION', {
-    x: 50,
-    y: yPosition,
-    size: 12,
-    font: boldFont,
-    color: black,
-  });
-  
-  yPosition -= 20;
-  page.drawText(`Name: ${data.customer_name}`, { x: 50, y: yPosition, size: 10, font: font, color: black });
-  yPosition -= 15;
-  page.drawText(`Email: ${data.customer_email}`, { x: 50, y: yPosition, size: 10, font: font, color: black });
-  yPosition -= 15;
-  page.drawText(`Phone: ${data.customer_phone}`, { x: 50, y: yPosition, size: 10, font: font, color: black });
-  yPosition -= 15;
-  page.drawText(`Address: ${data.customer_address}, ${data.customer_city}, FL ${data.customer_zip}`, { x: 50, y: yPosition, size: 10, font: font, color: black });
-  
-  yPosition -= 30;
-  
-  page.drawText('EVENT DETAILS', {
-    x: 50,
-    y: yPosition,
-    size: 12,
-    font: boldFont,
-    color: black,
-  });
-  
-  yPosition -= 20;
-  page.drawText(`Date: ${new Date(data.event_date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`, { x: 50, y: yPosition, size: 10, font: font, color: black });
-  yPosition -= 15;
-  page.drawText(`Start Time: ${data.event_time}`, { x: 50, y: yPosition, size: 10, font: font, color: black });
-  yPosition -= 15;
-  page.drawText(`Duration: ${data.event_duration}`, { x: 50, y: yPosition, size: 10, font: font, color: black });
-  yPosition -= 15;
-  page.drawText(`Location: ${data.event_location}`, { x: 50, y: yPosition, size: 10, font: font, color: black });
-  yPosition -= 15;
-  page.drawText(`Number of Musicians: ${data.num_musicians}`, { x: 50, y: yPosition, size: 10, font: font, color: black });
-  yPosition -= 15;
-  page.drawText(`Number of Sets: ${data.num_sets}`, { x: 50, y: yPosition, size: 10, font: font, color: black });
-  
-  if (data.special_requests) {
-    yPosition -= 20;
-    page.drawText('Special Requests:', { x: 50, y: yPosition, size: 10, font: boldFont, color: black });
-    yPosition -= 15;
-    page.drawText(data.special_requests.substring(0, 100), { x: 50, y: yPosition, size: 10, font: font, color: black });
+  const lines = wrapText(contractIntro, 80);
+  for (const line of lines) {
+    page.drawText(line, { x: 50, y, size: 10, font, color: black });
+    y -= 14;
   }
   
-  yPosition -= 30;
+  y -= 10;
   
-  page.drawText('PAYMENT TERMS', {
-    x: 50,
-    y: yPosition,
-    size: 12,
-    font: boldFont,
-    color: black,
-  });
+  // Paragraph 2
+  const para2 = "The Leader represents that the Employees already designated have agreed to be bound by the said terms and conditions. The Employees severally agree to render collectively to the Employer services as musicians as the band known as SON2 LATIN MUSIC.";
+  for (const line of wrapText(para2, 80)) {
+    page.drawText(line, { x: 50, y, size: 10, font, color: black });
+    y -= 14;
+  }
   
-  yPosition -= 20;
-  page.drawText(`Total Amount: $${data.total_price.toFixed(2)}`, { x: 50, y: yPosition, size: 10, font: font, color: black });
-  yPosition -= 15;
-  page.drawText(`Deposit (50%): $${data.deposit_amount.toFixed(2)}`, { x: 50, y: yPosition, size: 10, font: font, color: black });
-  yPosition -= 15;
-  page.drawText(`Balance Due: $${data.balance_due.toFixed(2)}`, { x: 50, y: yPosition, size: 10, font: boldFont, color: primaryColor });
-  yPosition -= 10;
-  page.drawText('(Balance due on day of event)', { x: 50, y: yPosition, size: 8, font: font, color: darkGray });
+  y -= 10;
   
-  yPosition -= 30;
+  // Performance details
+  page.drawText(`The Employees agree to perform up to ${data.num_sets} set(s) at approximately 50 minutes for each set.`, { x: 50, y, size: 10, font, color: black });
+  y -= 18;
   
-  page.drawText('PAYMENT METHODS', {
-    x: 50,
-    y: yPosition,
-    size: 12,
-    font: boldFont,
-    color: black,
-  });
+  page.drawText('The Employees will provide a PA system and operate the system during the performance.', { x: 50, y, size: 10, font, color: black });
+  y -= 18;
   
-  yPosition -= 20;
-  page.drawText('Zelle: 352-575-5439', { x: 50, y: yPosition, size: 10, font: font, color: black });
-  yPosition -= 15;
-  page.drawText('PayPal: son2latinmusic@gmail.com', { x: 50, y: yPosition, size: 10, font: font, color: black });
+  const para3 = "The Employer understands that SON2 will have access to the area We will be performing in up to 30 minutes prior to the performance and that final connections to the sound system will occur in the last 5 minutes prior to the performance.";
+  for (const line of wrapText(para3, 80)) {
+    page.drawText(line, { x: 50, y, size: 10, font, color: black });
+    y -= 14;
+  }
   
-  yPosition -= 30;
+  y -= 10;
   
-  page.drawText('TERMS & CONDITIONS', {
-    x: 50,
-    y: yPosition,
-    size: 12,
-    font: boldFont,
-    color: black,
-  });
+  page.drawText('The Employees understand that SON2 will have access to the rear stage area with vehicle to unload and load.', { x: 50, y, size: 10, font, color: black });
+  y -= 18;
   
-  yPosition -= 20;
+  const para4 = "The Employees understand that as a performer I will not be required to provide liability insurance as the event site has proper liability insurance.";
+  for (const line of wrapText(para4, 80)) {
+    page.drawText(line, { x: 50, y, size: 10, font, color: black });
+    y -= 14;
+  }
+  
+  y -= 10;
+  
+  const para5 = "The Employees also agree not to hold the event organizer liable for any of my equipment used during the performance.";
+  for (const line of wrapText(para5, 80)) {
+    page.drawText(line, { x: 50, y, size: 10, font, color: black });
+    y -= 14;
+  }
+  
+  y -= 15;
+  
+  // Event details
+  page.drawText('Name and address of place of engagement:', { x: 50, y, size: 10, font: boldFont, color: black });
+  y -= 16;
+  page.drawText(data.customer_name, { x: 50, y, size: 10, font, color: black });
+  y -= 14;
+  page.drawText(data.customer_address, { x: 50, y, size: 10, font, color: black });
+  y -= 14;
+  page.drawText(`${data.customer_city}, FL ${data.customer_zip}`, { x: 50, y, size: 10, font, color: black });
+  y -= 14;
+  page.drawText(`eMail: ${data.customer_email}`, { x: 50, y, size: 10, font, color: black });
+  y -= 14;
+  page.drawText(`Phone Number: ${data.customer_phone}`, { x: 50, y, size: 10, font, color: black });
+  y -= 20;
+  
+  // Employment details
+  const eventDateFormatted = new Date(data.event_date).toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  page.drawText(`Date of employment\t: ${eventDateFormatted}`, { x: 50, y, size: 10, font, color: black });
+  y -= 14;
+  page.drawText(`Start Time\t\t: ${data.event_time}`, { x: 50, y, size: 10, font, color: black });
+  y -= 14;
+  page.drawText(`Hours of employment\t: ${data.event_duration}`, { x: 50, y, size: 10, font, color: black });
+  y -= 14;
+  page.drawText(`Set up time\t\t: 1hr`, { x: 50, y, size: 10, font, color: black });
+  y -= 14;
+  page.drawText(`Intermission(s)\t\t: ${data.num_breaks}`, { x: 50, y, size: 10, font, color: black });
+  y -= 14;
+  
+  if (data.special_requests) {
+    page.drawText(`Special Request\t\t: ${data.special_requests.substring(0, 50)}`, { x: 50, y, size: 10, font, color: black });
+    y -= 14;
+  }
+  
+  page.drawText(`Min Num of Musicians\t: ${data.num_musicians}`, { x: 50, y, size: 10, font, color: black });
+  y -= 20;
+  
+  // Payment
+  page.drawText(`Total Wages\t\t: $ ${data.total_price.toFixed(2)}`, { x: 50, y, size: 10, font: boldFont, color: black });
+  y -= 14;
+  page.drawText(`Deposit\t\t\t: $ ${data.deposit_amount.toFixed(2)}`, { x: 50, y, size: 10, font, color: black });
+  y -= 14;
+  page.drawText(`Due\t\t\t: $ ${data.balance_due.toFixed(2)}`, { x: 50, y, size: 10, font: boldFont, color: black });
+  y -= 20;
+  
+  page.drawText('The Total includes Amplification, Music, Setup, Transportation', { x: 50, y, size: 10, font, color: black });
+  y -= 16;
+  page.drawText('The Total Payment is due before Performance.', { x: 50, y, size: 10, font: boldFont, color: black });
+  y -= 14;
+  page.drawText('Music will NOT start before receiving Full Payment.', { x: 50, y, size: 10, font: boldFont, color: black });
+  y -= 20;
+  
+  // Additional terms
+  page.drawText('Additional Terms and Conditions', { x: 50, y, size: 12, font: boldFont, color: black });
+  y -= 18;
+  
   const terms = [
-    '1. Deposit is non-refundable and required to secure the booking.',
-    '2. Balance must be paid on or before the day of the event.',
-    '3. Client is responsible for providing adequate performance space and power.',
-    '4. Cancellation must be made at least 30 days prior to event date.',
-    '5. SON2 Latin Music reserves the right to substitute musicians if necessary.',
+    "If any members have not been chosen upon the signing of this contract, the leader shall, as an agent for the Employer and under his instructions, hire such persons and any replacements as required for persons who for any reason does not or cannot perform any or all services.",
+    "If the Employer breaches this agreement, he shall pay the Employees, in addition to damages, 6% interest thereon plus a reasonable attorney's fee necessary for the enforcement of the contract."
   ];
   
   for (const term of terms) {
-    page.drawText(term, { x: 50, y: yPosition, size: 9, font: font, color: black });
-    yPosition -= 15;
+    for (const line of wrapText(term, 80)) {
+      page.drawText(line, { x: 50, y, size: 9, font, color: black });
+      y -= 12;
+    }
+    y -= 6;
   }
   
-  yPosition -= 30;
+  y -= 15;
   
-  page.drawText('SIGNATURES', {
-    x: 50,
-    y: yPosition,
-    size: 12,
-    font: boldFont,
-    color: black,
-  });
+  // Signatures
+  page.drawText('_______________________________________________________', { x: 50, y, size: 10, font, color: black });
+  y -= 16;
+  page.drawText("Employer's Name", { x: 50, y, size: 9, font, color: darkGray });
+  page.drawText('DATE', { x: 350, y, size: 9, font, color: darkGray });
+  y -= 25;
   
-  yPosition -= 30;
+  page.drawText('____________________________________________', { x: 50, y, size: 10, font, color: black });
+  page.drawText(today, { x: 300, y, size: 10, font, color: black });
+  y -= 16;
+  page.drawText("Employee's Signature (Francisco Moreno)", { x: 50, y, size: 9, font, color: darkGray });
+  page.drawText('DATE', { x: 350, y, size: 9, font, color: darkGray });
+  y -= 25;
   
-  page.drawLine({ start: { x: 50, y: yPosition }, end: { x: 250, y: yPosition }, thickness: 1, color: black });
-  page.drawText('Client Signature', { x: 50, y: yPosition - 15, size: 9, font: font, color: darkGray });
-  page.drawText('Date: _________________', { x: 50, y: yPosition - 30, size: 9, font: font, color: darkGray });
-  
-  page.drawLine({ start: { x: width - 250, y: yPosition }, end: { x: width - 50, y: yPosition }, thickness: 1, color: black });
-  page.drawText('SON2 Latin Music Representative', { x: width - 250, y: yPosition - 15, size: 9, font: font, color: darkGray });
-  page.drawText('Date: _________________', { x: width - 250, y: yPosition - 30, size: 9, font: font, color: darkGray });
-  
-  const footerY = 50;
-  page.drawText('SON2 LATIN MUSIC | 9030 Pinebreeze Dr., Riverview, FL 33578', { x: 50, y: footerY, size: 8, font: font, color: darkGray });
-  page.drawText('Phone: 352-575-4933 | Email: son2latinmusic@gmail.com', { x: 50, y: footerY - 12, size: 8, font: font, color: darkGray });
+  // Footer
+  page.drawText('SON2 LATIN MUSIC', { x: 50, y, size: 10, font: boldFont, color: black });
+  y -= 14;
+  page.drawText('(Please Make Checks Payable to)', { x: 50, y, size: 9, font, color: darkGray });
+  y -= 16;
+  page.drawText('Francisco and Celina Moreno', { x: 50, y, size: 10, font, color: black });
+  y -= 14;
+  page.drawText('9030 Pinebreeze Dr.', { x: 50, y, size: 10, font, color: black });
+  y -= 14;
+  page.drawText('Riverview, FL 33578', { x: 50, y, size: 10, font, color: black });
+  y -= 14;
+  page.drawText('Phone: 352-575-4933', { x: 50, y, size: 10, font, color: black });
+  y -= 14;
+  page.drawText('Son2latinmusic@gmail.com', { x: 50, y, size: 10, font, color: black });
+  y -= 18;
+  page.drawText('Preferred Payment Method: Zelle (using phone #: 352-575-5439)', { x: 50, y, size: 10, font: boldFont, color: black });
+  y -= 14;
+  page.drawText('Also accepted', { x: 50, y, size: 9, font, color: black });
+  y -= 12;
+  page.drawText('Paypal account: son2latinmusic@gmail.com  (additional charges apply - PP fee)', { x: 50, y, size: 9, font, color: black });
   
   const pdfBytes = await pdfDoc.save();
   return pdfBytes;
+}
+
+function wrapText(text: string, maxChars: number): string[] {
+  const words = text.split(' ');
+  const lines: string[] = [];
+  let currentLine = '';
+  
+  for (const word of words) {
+    if ((currentLine + ' ' + word).length <= maxChars) {
+      currentLine = currentLine ? currentLine + ' ' + word : word;
+    } else {
+      if (currentLine) lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+  
+  if (currentLine) lines.push(currentLine);
+  return lines;
 }
