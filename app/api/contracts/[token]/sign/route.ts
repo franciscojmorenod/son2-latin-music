@@ -212,10 +212,10 @@ export async function POST(
       ? JSON.parse(contract.contract_data) 
       : contract.contract_data;
 
-    console.log('📧 Sending notifications...');
+    console.log('📧 Scheduling contract signed notifications...');
 
-    // Fire and forget - send notifications async without blocking response
-    setImmediate(() => {
+    // Fire and forget - truly async, no waiting
+    Promise.resolve().then(() => {
       notifyContractSigned({
         quoteId: contract.quote_id,
         customerName: contractInfo.customer_name || 'Customer',
@@ -226,7 +226,11 @@ export async function POST(
           year: 'numeric'
         }),
         contractUrl: blob.url
-      }).catch(err => console.error('❌ Notification error:', err));
+      }).then(() => {
+        console.log('✅ Contract signed notifications completed');
+      }).catch(err => {
+        console.error('❌ Contract notification error:', err);
+      });
     });
 
     console.log('=== CONTRACT SIGNED SUCCESSFULLY ===');
