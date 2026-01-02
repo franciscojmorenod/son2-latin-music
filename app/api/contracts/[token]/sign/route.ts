@@ -4,7 +4,7 @@ import { put } from '@vercel/blob';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { notifyContractSigned } from '@/lib/notifications/sendNotifications';
 
-// GET - Fetch contract details
+// GET - Fetch contract details ----
 export async function GET(
   request: NextRequest,
   { params }: { params: { token: string } }
