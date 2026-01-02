@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     const start_time = body.start_time || body.startTime;
     const duration = body.duration;
     const indoor_outdoor = body.indoor_outdoor || body.indoorOutdoor;
-    const special_request_1 = body.special_request_1 || body.specialRequest1 || body.specialRequest;
+    const special_request_1 = body.special_request_1 || body.specialRequest1 || body.message;
 
     // Validate required fields
     if (!first_name || !last_name || !email || !phone) {
@@ -68,26 +68,34 @@ export async function POST(request: NextRequest) {
     const newQuote = result.rows[0];
     
     console.log('✅ Quote created:', newQuote.id);
-    console.log('📧 Sending notifications...');
 
- // Fire and forget - don't await, don't block response
-setImmediate(() => {
-  notifyNewQuoteRequest({
-    quoteId: newQuote.id,
-    customerName: `${newQuote.first_name} ${newQuote.last_name}`,
-    customerEmail: newQuote.email,
-    customerPhone: newQuote.phone,
-    eventDate: new Date(newQuote.event_date).toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      month: 'long', 
-      day: 'numeric', 
-      year: 'numeric' 
-    }),
-    eventLocation: `${newQuote.city}, FL`
-  }).catch(err => console.error('❌ Notification error:', err));
-});
+    // IMPORTANT: Send response FIRST, then do notifications
+    const response = NextResponse.json(newQuote, { status: 201 });
 
-return NextResponse.json(newQuote, { status: 201 });
+    // Fire notifications in background AFTER response is sent
+    console.log('📧 Scheduling notifications...');
+    setImmediate(() => {
+      notifyNewQuoteRequest({
+        quoteId: newQuote.id,
+        customerName: `${newQuote.first_name} ${newQuote.last_name}`,
+        customerEmail: newQuote.email,
+        customerPhone: newQuote.phone,
+        eventDate: new Date(newQuote.event_date).toLocaleDateString('en-US', { 
+          weekday: 'long', 
+          month: 'long', 
+          day: 'numeric', 
+          year: 'numeric' 
+        }),
+        eventLocation: `${newQuote.city}, FL`
+      }).then(() => {
+        console.log('✅ Notifications completed');
+      }).catch(err => {
+        console.error('❌ Notification error:', err);
+      });
+    });
+
+    return response;
+
   } catch (error: any) {
     console.error('❌ Error creating quote:', error);
     return NextResponse.json(
