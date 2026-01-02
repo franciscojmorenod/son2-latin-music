@@ -1,6 +1,13 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization - only create when needed
+function getResend() {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn('⚠️ RESEND_API_KEY not configured - notifications disabled');
+    return null;
+  }
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 interface QuoteNotificationData {
   quoteId: number;
@@ -20,10 +27,16 @@ interface ContractSignedData {
 
 export async function notifyNewQuoteRequest(data: QuoteNotificationData) {
   const results = { email: false, sms: false };
+  const resend = getResend();
+
+  if (!resend) {
+    console.log('⚠️ Notifications skipped - Resend not configured');
+    return results;
+  }
 
   try {
     // Send Email Notification
-    if (process.env.RESEND_API_KEY && process.env.ADMIN_EMAIL) {
+    if (process.env.ADMIN_EMAIL) {
       await resend.emails.send({
         from: 'SON2 Notifications <onboarding@resend.dev>',
         to: process.env.ADMIN_EMAIL,
@@ -64,7 +77,7 @@ export async function notifyNewQuoteRequest(data: QuoteNotificationData) {
 
   try {
     // Send SMS via Email Gateway (FREE!)
-    if (process.env.RESEND_API_KEY && process.env.ADMIN_SMS_EMAIL) {
+    if (process.env.ADMIN_SMS_EMAIL) {
       await resend.emails.send({
         from: 'SON2 Notifications <onboarding@resend.dev>',
         to: process.env.ADMIN_SMS_EMAIL,
@@ -83,10 +96,16 @@ export async function notifyNewQuoteRequest(data: QuoteNotificationData) {
 
 export async function notifyContractSigned(data: ContractSignedData) {
   const results = { email: false, sms: false };
+  const resend = getResend();
+
+  if (!resend) {
+    console.log('⚠️ Notifications skipped - Resend not configured');
+    return results;
+  }
 
   try {
     // Send Email Notification
-    if (process.env.RESEND_API_KEY && process.env.ADMIN_EMAIL) {
+    if (process.env.ADMIN_EMAIL) {
       await resend.emails.send({
         from: 'SON2 Notifications <onboarding@resend.dev>',
         to: process.env.ADMIN_EMAIL,
@@ -129,7 +148,7 @@ export async function notifyContractSigned(data: ContractSignedData) {
 
   try {
     // Send SMS via Email Gateway (FREE!)
-    if (process.env.RESEND_API_KEY && process.env.ADMIN_SMS_EMAIL) {
+    if (process.env.ADMIN_SMS_EMAIL) {
       await resend.emails.send({
         from: 'SON2 Notifications <onboarding@resend.dev>',
         to: process.env.ADMIN_SMS_EMAIL,
