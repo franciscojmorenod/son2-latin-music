@@ -258,12 +258,14 @@ export default function QuoteDetailPage() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'pending': return 'bg-yellow-400/10 text-yellow-400'
-      case 'quoted': return 'bg-blue-400/10 text-blue-400'
-      case 'booked': return 'bg-green-400/10 text-green-400'
-      case 'completed': return 'bg-gray-400/10 text-gray-400'
-      case 'cancelled': return 'bg-red-400/10 text-red-400'
-      default: return 'bg-gray-400/10 text-gray-400'
+    case 'pending': return 'bg-yellow-400/10 text-yellow-400'
+    case 'quoted': return 'bg-blue-400/10 text-blue-400'
+    case 'booked': return 'bg-green-400/10 text-green-400'
+    case 'deposit_paid': return 'bg-purple-400/10 text-purple-400'
+    case 'fully_booked': return 'bg-emerald-400/10 text-emerald-400'
+    case 'completed': return 'bg-gray-400/10 text-gray-400'
+    case 'cancelled': return 'bg-red-400/10 text-red-400'
+    default: return 'bg-gray-400/10 text-gray-400'
     }
   }
 
@@ -496,11 +498,13 @@ export default function QuoteDetailPage() {
                 <label className="text-gray-400 text-sm block mb-2">Quote Status</label>
                 {editing ? (
                   <select value={formData.status} onChange={(e) => setFormData({...formData, status: e.target.value})} className="w-full px-4 py-2 rounded-lg bg-gray-900 border border-gray-700 text-white focus:border-salsa-500 focus:ring-2 focus:ring-salsa-500/20 outline-none">
-                    <option value="pending">Pending</option>
-                    <option value="quoted">Quoted</option>
-                    <option value="booked">Booked</option>
-                    <option value="completed">Completed</option>
-                    <option value="cancelled">Cancelled</option>
+                  <option value="pending">Pending</option>
+                  <option value="quoted">Quoted</option>
+                  <option value="booked">Booked (Contract Signed)</option>
+                  <option value="deposit_paid">Deposit Paid</option>
+                  <option value="fully_booked">Fully Booked (Signed + Paid)</option>
+                  <option value="completed">Completed</option>
+                  <option value="cancelled">Cancelled</option>
                   </select>
                 ) : (
                   <span className={`inline-block px-4 py-2 rounded-full text-sm font-medium capitalize ${getStatusColor(quote.status)}`}>{quote.status}</span>

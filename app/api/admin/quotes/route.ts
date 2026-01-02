@@ -5,44 +5,45 @@ import { sql } from '@vercel/postgres';
 
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication
     const session = await getServerSession(authOptions);
     
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Fetch all quotes
-    const quotesResult = await sql`
+    const result = await sql`
       SELECT 
-        id, first_name, last_name, email, phone, 
-        city, event_date, status, created_at
+        id,
+        first_name,
+        last_name,
+        email,
+        phone,
+        address,
+        city,
+        zip,
+        event_date,
+        start_time,
+        duration,
+        status,
+        created_at
       FROM quote_requests
       ORDER BY created_at DESC
-      LIMIT 50
     `;
 
-    // Calculate stats
-    const statsResult = await sql`
-      SELECT 
-        COUNT(*) as total,
-        COUNT(*) FILTER (WHERE status = 'pending') as pending,
-        COUNT(*) FILTER (WHERE status = 'quoted') as quoted,
-        COUNT(*) FILTER (WHERE status = 'booked') as booked
-      FROM quote_requests
-    `;
+    const quotes = result.rows;
 
-    return NextResponse.json({
-      quotes: quotesResult.rows,
-      stats: {
-        total: parseInt(statsResult.rows[0].total),
-        pending: parseInt(statsResult.rows[0].pending),
-        quoted: parseInt(statsResult.rows[0].quoted),
-        booked: parseInt(statsResult.rows[0].booked),
-      }
-    });
+    // Calculate stats for all statuses
+    const stats = {
+      total: quotes.length,
+      pending: quotes.filter(q => q.status === 'pending').length,
+      quoted: quotes.filter(q => q.status === 'quoted').length,
+      booked: quotes.filter(q => q.status === 'booked').length,
+      deposit_paid: quotes.filter(q => q.status === 'deposit_paid').length,
+      fully_booked: quotes.filter(q => q.status === 'fully_booked').length,
+    };
 
-  } catch (error) {
+    return NextResponse.json({ quotes, stats });
+  } catch (error: any) {
     console.error('Error fetching quotes:', error);
     return NextResponse.json(
       { error: 'Failed to fetch quotes' },

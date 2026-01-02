@@ -3,7 +3,7 @@
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { Calendar, Users, FileText, CheckCircle, Clock, LogOut } from 'lucide-react'
+import { Calendar, Users, FileText, CheckCircle, Clock, LogOut, DollarSign, CheckCheck } from 'lucide-react'
 
 interface Quote {
   id: number
@@ -22,14 +22,24 @@ interface Stats {
   pending: number
   quoted: number
   booked: number
+  deposit_paid: number
+  fully_booked: number
 }
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const [quotes, setQuotes] = useState<Quote[]>([])
-  const [stats, setStats] = useState<Stats>({ total: 0, pending: 0, quoted: 0, booked: 0 })
+  const [stats, setStats] = useState<Stats>({ 
+    total: 0, 
+    pending: 0, 
+    quoted: 0, 
+    booked: 0,
+    deposit_paid: 0,
+    fully_booked: 0
+  })
   const [loading, setLoading] = useState(true)
+  const [statusFilter, setStatusFilter] = useState('all')
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -67,10 +77,25 @@ export default function AdminDashboard() {
       case 'pending': return 'text-yellow-400 bg-yellow-400/10'
       case 'quoted': return 'text-blue-400 bg-blue-400/10'
       case 'booked': return 'text-green-400 bg-green-400/10'
+      case 'deposit_paid': return 'text-purple-400 bg-purple-400/10'
+      case 'fully_booked': return 'text-emerald-400 bg-emerald-400/10'
       case 'completed': return 'text-gray-400 bg-gray-400/10'
+      case 'cancelled': return 'text-red-400 bg-red-400/10'
       default: return 'text-gray-400 bg-gray-400/10'
     }
   }
+
+  const getDisplayStatus = (status: string) => {
+    switch (status) {
+      case 'fully_booked': return 'Fully Booked'
+      case 'deposit_paid': return 'Deposit Paid'
+      default: return status.charAt(0).toUpperCase() + status.slice(1)
+    }
+  }
+
+  const filteredQuotes = statusFilter === 'all' 
+    ? quotes 
+    : quotes.filter(q => q.status === statusFilter)
 
   if (status === 'loading' || loading) {
     return (
@@ -110,13 +135,13 @@ export default function AdminDashboard() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
             <div className="flex items-center justify-between mb-2">
               <FileText className="text-salsa-400" size={24} />
               <span className="text-3xl font-bold">{stats.total}</span>
             </div>
-            <p className="text-gray-400">Total Quotes</p>
+            <p className="text-gray-400 text-sm">Total Quotes</p>
           </div>
 
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
@@ -124,7 +149,7 @@ export default function AdminDashboard() {
               <Clock className="text-yellow-400" size={24} />
               <span className="text-3xl font-bold">{stats.pending}</span>
             </div>
-            <p className="text-gray-400">Pending</p>
+            <p className="text-gray-400 text-sm">Pending</p>
           </div>
 
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
@@ -132,7 +157,7 @@ export default function AdminDashboard() {
               <Users className="text-blue-400" size={24} />
               <span className="text-3xl font-bold">{stats.quoted}</span>
             </div>
-            <p className="text-gray-400">Quoted</p>
+            <p className="text-gray-400 text-sm">Quoted</p>
           </div>
 
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
@@ -140,20 +165,104 @@ export default function AdminDashboard() {
               <CheckCircle className="text-green-400" size={24} />
               <span className="text-3xl font-bold">{stats.booked}</span>
             </div>
-            <p className="text-gray-400">Booked</p>
+            <p className="text-gray-400 text-sm">Booked</p>
+          </div>
+
+          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+            <div className="flex items-center justify-between mb-2">
+              <DollarSign className="text-purple-400" size={24} />
+              <span className="text-3xl font-bold">{stats.deposit_paid}</span>
+            </div>
+            <p className="text-gray-400 text-sm">Deposit Paid</p>
+          </div>
+
+          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+            <div className="flex items-center justify-between mb-2">
+              <CheckCheck className="text-emerald-400" size={24} />
+              <span className="text-3xl font-bold">{stats.fully_booked}</span>
+            </div>
+            <p className="text-gray-400 text-sm">Fully Booked</p>
+          </div>
+        </div>
+
+        {/* Status Filters */}
+        <div className="mb-6">
+          <div className="flex gap-2 flex-wrap">
+            <button
+              onClick={() => setStatusFilter('all')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                statusFilter === 'all' 
+                  ? 'bg-salsa-600 text-white' 
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              All ({stats.total})
+            </button>
+            <button
+              onClick={() => setStatusFilter('pending')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                statusFilter === 'pending' 
+                  ? 'bg-yellow-600 text-white' 
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              Pending ({stats.pending})
+            </button>
+            <button
+              onClick={() => setStatusFilter('quoted')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                statusFilter === 'quoted' 
+                  ? 'bg-blue-600 text-white' 
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              Quoted ({stats.quoted})
+            </button>
+            <button
+              onClick={() => setStatusFilter('booked')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                statusFilter === 'booked' 
+                  ? 'bg-green-600 text-white' 
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              Booked ({stats.booked})
+            </button>
+            <button
+              onClick={() => setStatusFilter('deposit_paid')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                statusFilter === 'deposit_paid' 
+                  ? 'bg-purple-600 text-white' 
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              Deposit Paid ({stats.deposit_paid})
+            </button>
+            <button
+              onClick={() => setStatusFilter('fully_booked')}
+              className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                statusFilter === 'fully_booked' 
+                  ? 'bg-emerald-600 text-white' 
+                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+              }`}
+            >
+              Fully Booked ({stats.fully_booked})
+            </button>
           </div>
         </div>
 
         {/* Recent Quotes */}
         <div className="bg-gray-800 rounded-xl border border-gray-700">
           <div className="p-6 border-b border-gray-700">
-            <h2 className="text-xl font-bold">Recent Quote Requests</h2>
+            <h2 className="text-xl font-bold">
+              {statusFilter === 'all' ? 'All Quote Requests' : `${getDisplayStatus(statusFilter)} Quotes`}
+            </h2>
           </div>
 
-          {quotes.length === 0 ? (
+          {filteredQuotes.length === 0 ? (
             <div className="p-12 text-center text-gray-400">
               <FileText size={48} className="mx-auto mb-4 opacity-50" />
-              <p>No quotes yet. Check back soon!</p>
+              <p>No {statusFilter === 'all' ? '' : statusFilter} quotes yet.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -184,7 +293,7 @@ export default function AdminDashboard() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-700">
-                  {quotes.map((quote) => (
+                  {filteredQuotes.map((quote) => (
                     <tr key={quote.id} className="hover:bg-gray-700/30 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="font-medium">{quote.first_name} {quote.last_name}</div>
@@ -204,7 +313,7 @@ export default function AdminDashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(quote.status)}`}>
-                          {quote.status}
+                          {getDisplayStatus(quote.status)}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">
