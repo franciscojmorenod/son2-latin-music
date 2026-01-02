@@ -97,7 +97,7 @@ export async function POST(
       year: 'numeric' 
     });
 
-    const dateY = 330; // Position closer to date line (below signature section)
+    const dateY = 280; // Position closer to date line (below signature section)
     secondPage.drawText(customerSignDate, {
       x: col1X + 35,
       y: dateY,
