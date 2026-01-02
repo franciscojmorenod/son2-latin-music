@@ -77,10 +77,10 @@ export async function POST(
     const col1X = margin + 20;
     
     // Client signature - moved right to avoid covering label, positioned closer to line
-    const signatureY = 335; // Just above the signature line
+    const signatureY = 330; // Just above the signature line
     const signatureX = col1X + 35; // Move right to avoid "Signature" label
-    const signatureWidth = 135; // 90% of original
-    const signatureHeight = 36; // 90% of original
+    const signatureWidth = 140; // 90% of original
+    const signatureHeight = 40; // 90% of original
 
     secondPage.drawImage(signatureImage, {
       x: signatureX,
@@ -97,7 +97,7 @@ export async function POST(
       year: 'numeric' 
     });
 
-    const dateY = 280; // Position closer to date line (below signature section)
+    const dateY = 330; // Position closer to date line (below signature section)
     secondPage.drawText(customerSignDate, {
       x: col1X + 35,
       y: dateY,
