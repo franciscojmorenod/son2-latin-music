@@ -121,8 +121,23 @@ export default function SignContractPage() {
                 <h3 className="text-xl font-bold mb-4">Your Signature</h3>
                 <div className="mb-4">
                   <label className="block text-gray-400 mb-2">Please sign below:</label>
-                  <div className="border-2 border-gray-600 rounded-lg bg-white">
+                  {/* <div className="border-2 border-gray-600 rounded-lg bg-white">
                     <SignatureCanvas ref={sigPadRef} canvasProps={{ className: 'w-full h-40' }} backgroundColor="white" />
+                  </div> */}
+                  <div 
+                    className="border-2 border-gray-600 rounded-lg overflow-hidden" 
+                    style={{ 
+                      background: 'repeating-conic-gradient(#eee 0% 25%, white 0% 50%) 50% / 20px 20px'
+                    }}
+                  >
+                    <SignatureCanvas
+                      ref={sigPadRef}
+                      canvasProps={{
+                        className: 'w-full h-32 md:h-40',
+                        style: { touchAction: 'none' }
+                      }}
+                      backgroundColor="rgba(0,0,0,0)"
+                    />
                   </div>
                 </div>
                 <div className="flex gap-3">
