@@ -4,6 +4,50 @@ import { put } from '@vercel/blob';
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
 import { notifyContractSigned } from '@/lib/notifications/sendNotifications';
 
+// GET - Fetch contract details
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { token: string } }
+) {
+  try {
+    console.log('Fetching contract with token:', params.token);
+
+    const result = await sql`
+      SELECT 
+        id,
+        quote_id,
+        contract_token,
+        status,
+        unsigned_pdf_url,
+        signed_pdf_url,
+        signed_at,
+        signer_ip,
+        expires_at,
+        contract_data,
+        created_at
+      FROM contracts
+      WHERE contract_token = ${params.token}
+    `;
+
+    if (result.rows.length === 0) {
+      console.log('Contract not found for token:', params.token);
+      return NextResponse.json({ error: 'Contract not found' }, { status: 404 });
+    }
+
+    const contract = result.rows[0];
+    console.log('Contract found:', contract.id, 'Status:', contract.status);
+
+    return NextResponse.json(contract);
+  } catch (error: any) {
+    console.error('Error fetching contract:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch contract', details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
+// POST - Sign the contract
 export async function POST(
   request: NextRequest,
   { params }: { params: { token: string } }
