@@ -56,7 +56,7 @@ export async function notifyNewQuoteRequest(data: QuoteNotificationData) {
             </div>
             
             <div style="text-align: center; margin-top: 30px;">
-              <a href="https://son2-latin-music.vercel.app/admin/quotes/${data.quoteId}" 
+              <a href="https://son2latinmusic.vercel.app/admin/quotes/${data.quoteId}" 
                  style="background: #dc2626; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
                 View Quote in Dashboard →
               </a>
@@ -82,7 +82,7 @@ export async function notifyNewQuoteRequest(data: QuoteNotificationData) {
         from: 'SON2 Notifications <onboarding@resend.dev>',
         to: process.env.ADMIN_SMS_EMAIL,
         subject: '', // Empty subject for cleaner SMS
-        text: `🎵 NEW QUOTE REQUEST\n\nCustomer: ${data.customerName}\nEvent: ${data.eventDate}\nLocation: ${data.eventLocation}\n\nView: https://son2-latin-music.vercel.app/admin/quotes/${data.quoteId}`
+        text: `🎵 NEW QUOTE REQUEST\n\nCustomer: ${data.customerName}\nEvent: ${data.eventDate}\nLocation: ${data.eventLocation}\n\nView: https://son2latinmusic.vercel.app/admin/quotes/${data.quoteId}`
       });
       results.sms = true;
       console.log('✅ SMS notification sent for new quote (via email gateway)');
@@ -127,7 +127,7 @@ export async function notifyContractSigned(data: ContractSignedData) {
                  style="background: #10b981; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold; margin-right: 10px;">
                 Download Signed Contract
               </a>
-              <a href="https://son2-latin-music.vercel.app/admin/quotes/${data.quoteId}" 
+              <a href="https://son2latinmusic.vercel.app/admin/quotes/${data.quoteId}" 
                  style="background: #dc2626; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
                 View in Dashboard
               </a>
@@ -153,7 +153,7 @@ export async function notifyContractSigned(data: ContractSignedData) {
         from: 'SON2 Notifications <onboarding@resend.dev>',
         to: process.env.ADMIN_SMS_EMAIL,
         subject: '', // Empty subject for cleaner SMS
-        text: `✅ CONTRACT SIGNED!\n\n${data.customerName}\nEvent: ${data.eventDate}\n\nStatus: BOOKED\n\nView: https://son2-latin-music.vercel.app/admin/quotes/${data.quoteId}`
+        text: `✅ CONTRACT SIGNED!\n\n${data.customerName}\nEvent: ${data.eventDate}\n\nStatus: BOOKED\n\nView: https://son2latinmusic.vercel.app/admin/quotes/${data.quoteId}`
       });
       results.sms = true;
       console.log('✅ SMS notification sent for contract signing (via email gateway)');
