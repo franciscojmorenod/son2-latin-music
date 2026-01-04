@@ -11,6 +11,7 @@ export async function POST(request: NextRequest) {
     const downloadToken = crypto.randomBytes(32).toString('hex');
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 24); // 24 hour expiry
+    const expiresAtString = expiresAt.toISOString(); // Convert to ISO string
 
     // Get track price
     const trackResult = await sql`
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest) {
       )
       VALUES (
         ${trackId}, ${customerName}, ${customerEmail}, ${customerPhone || null},
-        ${paymentScreenshotUrl || null}, ${downloadToken}, ${expiresAt}, ${totalAmount}
+        ${paymentScreenshotUrl || null}, ${downloadToken}, ${expiresAtString}, ${totalAmount}
       )
       RETURNING id
     `;
