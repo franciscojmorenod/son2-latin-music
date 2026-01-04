@@ -70,11 +70,16 @@ export default function AdminMusicOrders() {
 
   const getStatusColor = (orderStatus: string) => {
     switch (orderStatus) {
-      case 'pending': return 'text-yellow-400 bg-yellow-400/10'
-      case 'confirmed': return 'text-green-400 bg-green-400/10'
-      case 'completed': return 'text-blue-400 bg-blue-400/10'
-      case 'cancelled': return 'text-red-400 bg-red-400/10'
-      default: return 'text-gray-400 bg-gray-400/10'
+      case 'pending':
+        return 'text-yellow-400 bg-yellow-400/10'
+      case 'confirmed':
+        return 'text-green-400 bg-green-400/10'
+      case 'completed':
+        return 'text-blue-400 bg-blue-400/10'
+      case 'cancelled':
+        return 'text-red-400 bg-red-400/10'
+      default:
+        return 'text-gray-400 bg-gray-400/10'
     }
   }
 
@@ -122,7 +127,7 @@ export default function AdminMusicOrders() {
           <div className="p-6 border-b border-gray-700">
             <h2 className="text-xl font-bold flex items-center">
               <Music className="mr-2 text-salsa-400" />
-              Recent Orders ({orders.length})
+              Recent Orders
             </h2>
           </div>
 
@@ -141,7 +146,6 @@ export default function AdminMusicOrders() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Track</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Amount</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Downloads</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Actions</th>
                   </tr>
                 </thead>
@@ -158,9 +162,6 @@ export default function AdminMusicOrders() {
                         <div className="text-sm">
                           <div className="font-medium">{order.customer_name}</div>
                           <div className="text-gray-400 text-xs">{order.customer_email}</div>
-                          {order.customer_phone && (
-                            <div className="text-gray-400 text-xs">{order.customer_phone}</div>
-                          )}
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -174,23 +175,8 @@ export default function AdminMusicOrders() {
                           {order.order_status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {order.download_count} / {order.download_limit}
-                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          {order.payment_screenshot_url && (
-                            
-                              href={order.payment_screenshot_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-400 hover:text-blue-300"
-                              title="View screenshot"
-                            >
-                              <ExternalLink size={16} />
-                            </a>
-                          )}
-                          
                           {order.order_status === 'pending' && (
                             <>
                               <button
@@ -208,19 +194,6 @@ export default function AdminMusicOrders() {
                                 <XCircle size={16} />
                               </button>
                             </>
-                          )}
-                          
-                          {order.order_status === 'confirmed' && (
-                            <button
-                              onClick={() => {
-                                const link = `${window.location.origin}/api/music/download/${order.download_token}`
-                                navigator.clipboard.writeText(link)
-                                alert('Download link copied to clipboard!')
-                              }}
-                              className="text-xs px-3 py-1 bg-salsa-600 hover:bg-salsa-500 rounded transition-colors"
-                            >
-                              Copy Link
-                            </button>
                           )}
                         </div>
                       </td>
