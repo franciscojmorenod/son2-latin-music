@@ -7,9 +7,12 @@ export default function PhotosPage() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
 
   const photos = [
+    { src: '/images/_zpic0e.jpg', title: 'Photo Zpic0e' },
+    { src: '/images/_pic01.jpg', title: 'Photo 01' },    
+    { src: '/images/_pic0b.jpg', title: 'Photo 0b' },
     { src: '/images/F_Ccartoon.jpg', title: 'Photo F_Ccartoon' },
-    { src: '/images/F_Cicon.png', title: 'Photo F_Cicon' },
     { src: '/images/_FM1b.jpg', title: 'Photo FM1b' },
+    { src: '/images/_pic0c.jpg', title: 'Photo 0c' },
     { src: '/images/_pic05.jpg', title: 'Photo 5' },
     { src: '/images/_pic06.jpg', title: 'Photo 6' },
     { src: '/images/_pic07.jpg', title: 'Photo 7' },
@@ -145,12 +148,8 @@ export default function PhotosPage() {
     { src: '/images/_pic134.jpg', title: 'Photo 134' },
     { src: '/images/_pic135.jpg', title: 'Photo 135' },
     { src: '/images/_pic136.jpg', title: 'Photo 136' },
-    { src: '/images/_zpic0e.jpg', title: 'Photo Zpic0e' },
     { src: '/images/_pic0a.jpg', title: 'Photo 0a' },
-    { src: '/images/_pic0b.jpg', title: 'Photo 0b' },
-    { src: '/images/_pic0c.jpg', title: 'Photo 0c' },
     { src: '/images/_pic0d.jpg', title: 'Photo 0d' },
-    { src: '/images/_pic01.jpg', title: 'Photo 01' },
     { src: '/images/_pic02.jpg', title: 'Photo 02' },
     { src: '/images/_pic03.jpg', title: 'Photo 03' },
     { src: '/images/_pic04.jpg', title: 'Photo 04' },
