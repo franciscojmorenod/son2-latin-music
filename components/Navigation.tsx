@@ -11,6 +11,7 @@ export default function Navigation() {
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
     { name: 'Audios', href: '/audios' },
+    { name: 'Music', href: '/music' },    
     { name: 'Photos', href: '/photos' },
     { name: 'Videos', href: '/videos' },
     { name: 'Get Quote', href: '/quote' },
