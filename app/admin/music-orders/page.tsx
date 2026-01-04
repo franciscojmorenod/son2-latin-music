@@ -48,16 +48,16 @@ export default function AdminMusicOrders() {
     }
   }
 
-  const updateOrderStatus = async (orderId: number, status: string) => {
+  const updateOrderStatus = async (orderId: number, newStatus: string) => {
     try {
       const response = await fetch(`/api/admin/music-orders/${orderId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status })
+        body: JSON.stringify({ status: newStatus })
       })
 
       if (response.ok) {
-        alert(`Order ${status}!`)
+        alert(`Order ${newStatus}!`)
         fetchOrders()
       } else {
         alert('Error updating order')
@@ -68,8 +68,8 @@ export default function AdminMusicOrders() {
     }
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
+  const getStatusColor = (orderStatus: string) => {
+    switch (orderStatus) {
       case 'pending': return 'text-yellow-400 bg-yellow-400/10'
       case 'confirmed': return 'text-green-400 bg-green-400/10'
       case 'completed': return 'text-blue-400 bg-blue-400/10'
@@ -98,7 +98,6 @@ export default function AdminMusicOrders() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {/* Header */}
       <header className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
@@ -119,7 +118,6 @@ export default function AdminMusicOrders() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Orders Table */}
         <div className="bg-gray-800 rounded-xl border border-gray-700">
           <div className="p-6 border-b border-gray-700">
             <h2 className="text-xl font-bold flex items-center">
@@ -138,27 +136,13 @@ export default function AdminMusicOrders() {
               <table className="w-full">
                 <thead className="bg-gray-700/50">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">
-                      Order
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">
-                      Customer
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">
-                      Track
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">
-                      Amount
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">
-                      Status
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">
-                      Downloads
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">
-                      Actions
-                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Order</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Customer</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Track</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Amount</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Downloads</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-700">
@@ -167,9 +151,7 @@ export default function AdminMusicOrders() {
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm">
                           <div className="font-medium">#{order.id}</div>
-                          <div className="text-gray-400 text-xs">
-                            {formatDate(order.created_at)}
-                          </div>
+                          <div className="text-gray-400 text-xs">{formatDate(order.created_at)}</div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
@@ -185,9 +167,7 @@ export default function AdminMusicOrders() {
                         <div className="text-sm font-medium">{order.track_title}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-lg font-bold text-salsa-400">
-                          ${order.total_amount}
-                        </div>
+                        <div className="text-lg font-bold text-salsa-400">${order.total_amount}</div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.order_status)}`}>
