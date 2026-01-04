@@ -12,6 +12,11 @@
 /.next/
 /out/
 
+# Admin password scripts - DO NOT COMMIT
+scripts/generate-password-hash.js
+scripts/reset-admin.js
+scripts/reset-password.js
+
 # production
 /build
 
