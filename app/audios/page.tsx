@@ -9,18 +9,19 @@ export default function AudiosPage() {
 
   // Add your actual audio files here
   const tracks = [
-    { file: '/audio/A_Cuerpo_Cobarde.mp3',        title: 'A Cuerpo Cobarde',  artist: 'Son2 Latin Music' },
+
+    { file: '/audio/Traigo_De_Todo.mp3',          title: 'Traigo de Todo',  artist: 'Son2 Latin Music' },    
     { file: '/audio/Anacaona.mp3',                title: 'Anacaona',  artist: 'Son2 Latin Music' },
     { file: '/audio/De_todas_Maneras_Rosas.mp3',  title: 'De Todas Maneras Rosas',   artist: 'Son2 Latin Music' },
     { file: '/audio/Esta_Cobardia.mp3',           title: 'Esta Cobardia',  artist: 'Son2 Latin Music' },
+    { file: '/audio/Por_Una_Cabeza.mp3',          title: 'Por Una Cabeza',  artist: 'Son2 Latin Music' },    
     { file: '/audio/Lagrimas_Negras.mp3',         title: 'Lagrimas Negras',  artist: 'Son2 Latin Music' },
-    { file: '/audio/Moliendo_Cafe.mp3',           title: 'Moliendo Cafe',  artist: 'Son2 Latin Music' },
     { file: '/audio/Naci_Moreno.mp3',             title: 'Naci Moreno',  artist: 'Son2 Latin Music' },
+    { file: '/audio/Porque_Ahora.mp3',            title: 'Porque Ahora',  artist: 'Son2 Latin Music' },      
     { file: '/audio/No_Renunciare.mp3',           title: 'No Renunciare',  artist: 'Son2 Latin Music' },
+    { file: '/audio/Moliendo_Cafe.mp3',           title: 'Moliendo Cafe',  artist: 'Son2 Latin Music' },    
     { file: '/audio/Pa_Oriente.mp3',              title: 'Pa Oriente',   artist: 'Son2 Latin Music' },
-    { file: '/audio/Por_Una_Cabeza.mp3',          title: 'Por Una Cabeza',  artist: 'Son2 Latin Music' },
-    { file: '/audio/Porque_Ahora.mp3',            title: 'Porque Ahora',  artist: 'Son2 Latin Music' },
-    { file: '/audio/Traigo_De_Todo.mp3',          title: 'Traigo de Todo',  artist: 'Son2 Latin Music' },    
+    { file: '/audio/A_Cuerpo_Cobarde.mp3',        title: 'A Cuerpo Cobarde',  artist: 'Son2 Latin Music' },    
   ]
 
   const togglePlay = (index: number) => {
