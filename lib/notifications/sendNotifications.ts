@@ -25,6 +25,21 @@ interface ContractSignedData {
   contractUrl: string;
 }
 
+interface MusicOrderData {
+  orderId: number;
+  customerName: string;
+  customerEmail: string;
+  trackTitle: string;
+  amount: number;
+}
+
+interface MusicDownloadData {
+  customerName: string;
+  customerEmail: string;
+  trackTitle: string;
+  downloadLink: string;
+}
+
 export async function notifyNewQuoteRequest(data: QuoteNotificationData) {
   const results = { email: false, sms: false };
   const resend = getResend();
@@ -81,7 +96,7 @@ export async function notifyNewQuoteRequest(data: QuoteNotificationData) {
       await resend.emails.send({
         from: 'SON2 Notifications <onboarding@resend.dev>',
         to: process.env.ADMIN_SMS_EMAIL,
-        subject: '', // Empty subject for cleaner SMS
+        subject: '',
         text: `🎵 NEW QUOTE REQUEST\n\nCustomer: ${data.customerName}\nEvent: ${data.eventDate}\nLocation: ${data.eventLocation}\n\nView: https://son2latinmusic.vercel.app/admin/quotes/${data.quoteId}`
       });
       results.sms = true;
@@ -152,7 +167,7 @@ export async function notifyContractSigned(data: ContractSignedData) {
       await resend.emails.send({
         from: 'SON2 Notifications <onboarding@resend.dev>',
         to: process.env.ADMIN_SMS_EMAIL,
-        subject: '', // Empty subject for cleaner SMS
+        subject: '',
         text: `✅ CONTRACT SIGNED!\n\n${data.customerName}\nEvent: ${data.eventDate}\n\nStatus: BOOKED\n\nView: https://son2latinmusic.vercel.app/admin/quotes/${data.quoteId}`
       });
       results.sms = true;
@@ -162,19 +177,7 @@ export async function notifyContractSigned(data: ContractSignedData) {
     console.error('❌ Error sending SMS notification:', error);
   }
 
-interface MusicOrderData {
-  orderId: number;
-  customerName: string;
-  customerEmail: string;
-  trackTitle: string;
-  amount: number;
-}
-
-interface MusicDownloadData {
-  customerName: string;
-  customerEmail: string;
-  trackTitle: string;
-  downloadLink: string;
+  return results;
 }
 
 export async function notifyNewMusicOrder(data: MusicOrderData) {
@@ -291,5 +294,4 @@ export async function notifySendDownloadLink(data: MusicDownloadData) {
   }
 
   return results;
-
 }
