@@ -72,20 +72,28 @@ export async function POST(request: NextRequest) {
     // IMPORTANT: Send response FIRST, then do notifications
     const response = NextResponse.json(newQuote, { status: 201 });
 
-    // Fire notifications in background AFTER response is sent
+  // Fire notifications in background AFTER response is sent
     console.log('📧 Scheduling notifications...');
-    setImmediate(() => {
+    Promise.resolve().then(() => {
+      // Fix timezone issue - parse date without timezone conversion
+      const [year, month, day] = newQuote.event_date.split('-');
+      const eventDateFormatted = new Date(
+        parseInt(year), 
+        parseInt(month) - 1, 
+        parseInt(day)
+      ).toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        month: 'long', 
+        day: 'numeric', 
+        year: 'numeric' 
+      });
+
       notifyNewQuoteRequest({
         quoteId: newQuote.id,
         customerName: `${newQuote.first_name} ${newQuote.last_name}`,
         customerEmail: newQuote.email,
         customerPhone: newQuote.phone,
-        eventDate: new Date(newQuote.event_date).toLocaleDateString('en-US', { 
-          weekday: 'long', 
-          month: 'long', 
-          day: 'numeric', 
-          year: 'numeric' 
-        }),
+        eventDate: eventDateFormatted,
         eventLocation: `${newQuote.city}, FL`
       }).then(() => {
         console.log('✅ Notifications completed');
