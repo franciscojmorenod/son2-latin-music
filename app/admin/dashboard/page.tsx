@@ -65,7 +65,13 @@ export default function AdminDashboard() {
   }
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
+    // Parse date without timezone conversion
+    const [year, month, day] = dateString.split('-')
+    return new Date(
+      parseInt(year), 
+      parseInt(month) - 1, 
+      parseInt(day)
+    ).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric'
