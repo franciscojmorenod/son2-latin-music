@@ -70,13 +70,13 @@ export async function POST(request: NextRequest) {
     console.log('✅ Quote created:', newQuote.id);
 
     // IMPORTANT: Send response FIRST, then do notifications
-    const response = NextResponse.json(newQuote, { status: 201 });
+const response = NextResponse.json(newQuote, { status: 201 });
 
-  // Fire notifications in background AFTER response is sent
+    // Fire notifications in background AFTER response is sent
     console.log('📧 Scheduling notifications...');
     Promise.resolve().then(() => {
-      // Fix timezone issue - parse date without timezone conversion
-      const [year, month, day] = newQuote.event_date.split('-');
+      // FIX: Use the original event_date string variable, not from database
+      const [year, month, day] = event_date.split('-');
       const eventDateFormatted = new Date(
         parseInt(year), 
         parseInt(month) - 1, 
