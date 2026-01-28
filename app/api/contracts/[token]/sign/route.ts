@@ -216,15 +216,27 @@ export async function POST(
 
     // Fire and forget - truly async, no waiting
     Promise.resolve().then(() => {
+      // FIX: Parse date without timezone conversion
+      const eventDateStr = contractInfo.event_date.toString().includes('T')
+        ? contractInfo.event_date.toString().split('T')[0]
+        : contractInfo.event_date.toString();
+      
+      const [year, month, day] = eventDateStr.split('-');
+      const eventDateFormatted = new Date(
+        parseInt(year), 
+        parseInt(month) - 1, 
+        parseInt(day)
+      ).toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'long', 
+        day: 'numeric',
+        year: 'numeric'
+      });
+
       notifyContractSigned({
         quoteId: contract.quote_id,
         customerName: contractInfo.customer_name || 'Customer',
-        eventDate: new Date(contractInfo.event_date).toLocaleDateString('en-US', {
-          weekday: 'long',
-          month: 'long', 
-          day: 'numeric',
-          year: 'numeric'
-        }),
+        eventDate: eventDateFormatted,
         contractUrl: blob.url
       }).then(() => {
         console.log('✅ Contract signed notifications completed');
@@ -232,6 +244,28 @@ export async function POST(
         console.error('❌ Contract notification error:', err);
       });
     });
+
+
+    // console.log('📧 Scheduling contract signed notifications...');
+
+    // // Fire and forget - truly async, no waiting
+    // Promise.resolve().then(() => {
+    //   notifyContractSigned({
+    //     quoteId: contract.quote_id,
+    //     customerName: contractInfo.customer_name || 'Customer',
+    //     eventDate: new Date(contractInfo.event_date).toLocaleDateString('en-US', {
+    //       weekday: 'long',
+    //       month: 'long', 
+    //       day: 'numeric',
+    //       year: 'numeric'
+    //     }),
+    //     contractUrl: blob.url
+    //   }).then(() => {
+    //     console.log('✅ Contract signed notifications completed');
+    //   }).catch(err => {
+    //     console.error('❌ Contract notification error:', err);
+    //   });
+    // });
 
     console.log('=== CONTRACT SIGNED SUCCESSFULLY ===');
 
