@@ -40,9 +40,17 @@ interface MusicDownloadData {
   downloadLink: string;
 }
 
+
 export async function notifyNewQuoteRequest(data: QuoteNotificationData) {
+  console.log('🔍 Starting notifyNewQuoteRequest with data:', data);
+  
   const results = { email: false, sms: false };
   const resend = getResend();
+
+  console.log('🔍 Resend instance created:', !!resend);
+  console.log('🔍 API Key exists:', !!process.env.RESEND_API_KEY);
+  console.log('🔍 Admin email:', process.env.ADMIN_EMAIL);
+  console.log('🔍 Admin SMS:', process.env.ADMIN_SMS_EMAIL);
 
   if (!resend) {
     console.log('⚠️ Notifications skipped - Resend not configured');
@@ -52,6 +60,8 @@ export async function notifyNewQuoteRequest(data: QuoteNotificationData) {
   try {
     // Send Email Notification
     if (process.env.ADMIN_EMAIL) {
+      console.log('📧 Attempting to send email...');
+      
       await resend.emails.send({
         from: 'SON2 Notifications <onboarding@resend.dev>',
         to: process.env.ADMIN_EMAIL,
@@ -83,31 +93,105 @@ export async function notifyNewQuoteRequest(data: QuoteNotificationData) {
           </div>
         `
       });
+      
       results.email = true;
-      console.log('✅ Email notification sent for new quote');
+      console.log('✅ Email notification sent successfully');
     }
   } catch (error) {
-    console.error('❌ Error sending email notification:', error);
+    console.error('❌ Email notification error:', error);
   }
 
   try {
     // Send SMS via Email Gateway (FREE!)
     if (process.env.ADMIN_SMS_EMAIL) {
+      console.log('📱 Attempting to send SMS...');
+      
       await resend.emails.send({
         from: 'SON2 Notifications <onboarding@resend.dev>',
         to: process.env.ADMIN_SMS_EMAIL,
         subject: '',
         text: `🎵 NEW QUOTE REQUEST\n\nCustomer: ${data.customerName}\nEvent: ${data.eventDate}\nLocation: ${data.eventLocation}\n\nView: https://son2latinmusic.vercel.app/admin/quotes/${data.quoteId}`
       });
+      
       results.sms = true;
-      console.log('✅ SMS notification sent for new quote (via email gateway)');
+      console.log('✅ SMS notification sent successfully');
     }
   } catch (error) {
-    console.error('❌ Error sending SMS notification:', error);
-  }
+    console.error('❌ SMS notification error:', error);
 
+
+  console.log('🎯 Notification results:', results);
   return results;
 }
+
+// export async function notifyNewQuoteRequest(data: QuoteNotificationData) {
+//   const results = { email: false, sms: false };
+//   const resend = getResend();
+
+//   if (!resend) {
+//     console.log('⚠️ Notifications skipped - Resend not configured');
+//     return results;
+//   }
+
+//   try {
+//     // Send Email Notification
+//     if (process.env.ADMIN_EMAIL) {
+//       await resend.emails.send({
+//         from: 'SON2 Notifications <onboarding@resend.dev>',
+//         to: process.env.ADMIN_EMAIL,
+//         subject: `🎵 New Quote Request - ${data.customerName}`,
+//         html: `
+//           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #111827; color: #fff; padding: 20px; border-radius: 10px;">
+//             <h1 style="color: #dc2626; text-align: center; margin-bottom: 10px;">🎵 NEW QUOTE REQUEST</h1>
+//             <p style="text-align: center; color: #9ca3af; margin-bottom: 30px;">Quote #${data.quoteId}</p>
+            
+//             <div style="background: #1f2937; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+//               <h2 style="color: #dc2626; font-size: 18px; margin-bottom: 15px;">Customer Details</h2>
+//               <p style="margin: 8px 0;"><strong>Name:</strong> ${data.customerName}</p>
+//               <p style="margin: 8px 0;"><strong>Email:</strong> ${data.customerEmail}</p>
+//               <p style="margin: 8px 0;"><strong>Phone:</strong> ${data.customerPhone}</p>
+//               <p style="margin: 8px 0;"><strong>Event Date:</strong> ${data.eventDate}</p>
+//               <p style="margin: 8px 0;"><strong>Location:</strong> ${data.eventLocation}</p>
+//             </div>
+            
+//             <div style="text-align: center; margin-top: 30px;">
+//               <a href="https://son2latinmusic.vercel.app/admin/quotes/${data.quoteId}" 
+//                  style="background: #dc2626; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
+//                 View Quote in Dashboard →
+//               </a>
+//             </div>
+            
+//             <p style="color: #6b7280; font-size: 12px; text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #374151;">
+//               SON2 Latin Music - Contract Management System
+//             </p>
+//           </div>
+//         `
+//       });
+//       results.email = true;
+//       console.log('✅ Email notification sent for new quote');
+//     }
+//   } catch (error) {
+//     console.error('❌ Error sending email notification:', error);
+//   }
+
+//   try {
+//     // Send SMS via Email Gateway (FREE!)
+//     if (process.env.ADMIN_SMS_EMAIL) {
+//       await resend.emails.send({
+//         from: 'SON2 Notifications <onboarding@resend.dev>',
+//         to: process.env.ADMIN_SMS_EMAIL,
+//         subject: '',
+//         text: `🎵 NEW QUOTE REQUEST\n\nCustomer: ${data.customerName}\nEvent: ${data.eventDate}\nLocation: ${data.eventLocation}\n\nView: https://son2latinmusic.vercel.app/admin/quotes/${data.quoteId}`
+//       });
+//       results.sms = true;
+//       console.log('✅ SMS notification sent for new quote (via email gateway)');
+//     }
+//   } catch (error) {
+//     console.error('❌ Error sending SMS notification:', error);
+//   }
+
+//   return results;
+// }
 
 export async function notifyContractSigned(data: ContractSignedData) {
   const results = { email: false, sms: false };
