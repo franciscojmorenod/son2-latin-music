@@ -40,7 +40,6 @@ interface MusicDownloadData {
   downloadLink: string;
 }
 
-
 export async function notifyNewQuoteRequest(data: QuoteNotificationData) {
   console.log('🔍 Starting notifyNewQuoteRequest with data:', data);
   
@@ -118,11 +117,12 @@ export async function notifyNewQuoteRequest(data: QuoteNotificationData) {
     }
   } catch (error) {
     console.error('❌ SMS notification error:', error);
-
+  }
 
   console.log('🎯 Notification results:', results);
   return results;
 }
+
 
 // export async function notifyNewQuoteRequest(data: QuoteNotificationData) {
 //   const results = { email: false, sms: false };
