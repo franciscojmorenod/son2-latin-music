@@ -69,39 +69,40 @@ export async function POST(request: NextRequest) {
     
     console.log('✅ Quote created:', newQuote.id);
 
-    // Format the date for notifications (timezone-aware)
-    const [year, month, day] = event_date.split('-');
-    const eventDateFormatted = new Date(
-      parseInt(year), 
-      parseInt(month) - 1, 
-      parseInt(day)
-    ).toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      month: 'long', 
-      day: 'numeric', 
-      year: 'numeric' 
-    });
+    // IMPORTANT: Send response FIRST, then do notifications
+const response = NextResponse.json(newQuote, { status: 201 });
 
-    // Send notifications (await to ensure they complete before function terminates)
-    console.log('📧 Sending notifications...');
-    try {
-      await notifyNewQuoteRequest({
+    // Fire notifications in background AFTER response is sent
+    console.log('📧 Scheduling notifications...');
+    Promise.resolve().then(() => {
+      // FIX: Use the original event_date string variable, not from database
+      const [year, month, day] = event_date.split('-');
+      const eventDateFormatted = new Date(
+        parseInt(year), 
+        parseInt(month) - 1, 
+        parseInt(day)
+      ).toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        month: 'long', 
+        day: 'numeric', 
+        year: 'numeric' 
+      });
+
+      notifyNewQuoteRequest({
         quoteId: newQuote.id,
         customerName: `${newQuote.first_name} ${newQuote.last_name}`,
         customerEmail: newQuote.email,
         customerPhone: newQuote.phone,
         eventDate: eventDateFormatted,
         eventLocation: `${newQuote.city}, FL`
+      }).then(() => {
+        console.log('✅ Notifications completed');
+      }).catch(err => {
+        console.error('❌ Notification error:', err);
       });
-      console.log('✅ Notifications sent successfully');
-    } catch (notificationError) {
-      console.error('❌ Notification error:', notificationError);
-      // Don't fail the quote creation if notifications fail
-      // Quote is still created, just log the error
-    }
+    });
 
-    // Return success response AFTER notifications complete
-    return NextResponse.json(newQuote, { status: 201 });
+    return response;
 
   } catch (error: any) {
     console.error('❌ Error creating quote:', error);
