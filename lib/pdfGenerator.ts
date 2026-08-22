@@ -1,5 +1,5 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
-
+ 
 interface ContractData {
   quote_id: number;
   customer_name: string;
@@ -20,7 +20,7 @@ interface ContractData {
   num_breaks: number;
   special_requests?: string;
 }
-
+ 
 export async function generateContract(data: ContractData): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
   
@@ -169,7 +169,7 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   });
   y -= 16;
   
-  const insuranceText = "• The Employees will not be required to provide liability insurance as the event site has proper liability insurance.";
+  const insuranceText = "• If the Employer/Venue requires the Employees to obtain liability insurance (or any other insurance coverage) as a condition of performance, the cost of such insurance shall be an additional expense charged to the Employer.";
   for (const line of wrapText(insuranceText, 80)) {
     page1.drawText(line, {
       x: margin + 10,
@@ -570,6 +570,23 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
     color: black,
   });
   
+  y -= 25;
+  
+  // Final line - centered, in red - contract validity window
+  const validityText = 'This contract is valid for 3 days from the Contract Date above. If not signed within this period, the quoted terms are subject to change.';
+  const validityLines = wrapText(validityText, 90);
+  for (const line of validityLines) {
+    const lineWidth = boldFont.widthOfTextAtSize(line, 9);
+    page2.drawText(line, {
+      x: (width - lineWidth) / 2,
+      y,
+      size: 9,
+      font: boldFont,
+      color: primaryColor,
+    });
+    y -= 12;
+  }
+  
   // Footer - Page 2 (right-aligned)
   const page2Text = 'Page 2 of 2';
   const page2Width = font.widthOfTextAtSize(page2Text, 9);
@@ -584,7 +601,7 @@ export async function generateContract(data: ContractData): Promise<Uint8Array> 
   const pdfBytes = await pdfDoc.save();
   return pdfBytes;
 }
-
+ 
 function wrapText(text: string, maxChars: number): string[] {
   const words = text.split(' ');
   const lines: string[] = [];
@@ -602,3 +619,4 @@ function wrapText(text: string, maxChars: number): string[] {
   if (currentLine) lines.push(currentLine);
   return lines;
 }
+ 
